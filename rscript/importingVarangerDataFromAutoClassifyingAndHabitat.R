@@ -4,11 +4,12 @@ library(dplyr)
 library(tidyr)
 
 # set working directory
-wd <- "Z:/bilder_smagnagerfotobokser/Data/MLWIC_classification"
+wd <- "C:/Eivind/GitProjects/MustelidsAndRodents-"
 setwd(wd)
 
 # look at files in the directory
 dir() 
+setwd("./data")
 
 # list filenames from Komag and vestre jakobselv
 filenames <- c("classifications_komagdalen_2016_2020_03_02.csv",
@@ -31,32 +32,38 @@ str(ctdata)
 df <- do.call(rbind, ctdata) 
 
 # add columns with site name and date 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 datesplit <- function(filename)  # retrieve date and station from file name
 {
   filename2 <- as.character(filename)
   string <- strsplit(filename2,"/")        # split filename at _
+  string2 <- strsplit(filename2,"\\\\")[[1]] # split filename at \\\\
+  string3 <- strsplit(filename2,"_")
   
-  station <-string[[1]][10]  # recollect the filename
+  station <-string[[1]][10] # pick the stationID
+  date <- string3[[1]][10] # pick the date
   
-  string2 <- strsplit(filename2,"_")
-  date <- string2[[1]][10] # pick the date
-
-  outdf <- c(station, date) # collect the things you want to save
+  # remove last "'" 
+  # obtain file name isolated
+  newfilename1 <- strsplit(string2[3],"'")[[1]][1]
+  
+  outdf <- c(station, date, newfilename1) # collect the things you want the function to output
   return(outdf)
-  } # end function
+} # end 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # run function and store as df
 datesite <- as.data.frame(t(sapply(df$fileName,datesplit))) 
-names(datesite) <- c("site", "date")
+names(datesite) <- c("site", "date", "NewFileName")
 
 # add more time/date info
-datesite$date <- as.Date(datesite$date)
-datesite$day <- format(datesite$date, format = "%d")
-datesite$month <- format(datesite$date, format="%m")
-datesite$year <- format(datesite$date, format="%Y")
-datesite$julian <- julian(datesite$date, origin=min(datesite$date))
-datesite$week <- week(datesite$date)
-datesite$yearweek<-format(datesite$date, format="%Y-%W")
+#datesite$date <- as.Date(datesite$date)
+#datesite$day <- format(datesite$date, format = "%d")
+#datesite$month <- format(datesite$date, format="%m")
+#datesite$year <- format(datesite$date, format="%Y")
+#datesite$julian <- julian(datesite$date, origin=min(datesite$date))
+#datesite$week <- week(datesite$date)
+#datesite$yearweek<-format(datesite$date, format="%Y-%W")
 
 # bind date and site df with initial df
 df2 <- cbind(df,datesite) 
@@ -104,6 +111,12 @@ dat <- left_join(df2, metadata, by="site") # add on info from metadata
 
 #check that it went fine
 str(dat)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+setwd("C:/Eivind/GitProjects/MustelidsAndRodents-/data")
+# export data frame for metadata
+ write.csv(dat, "varanger_camera_answer.csv")
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # sum animals per day
 vole_c <- aggregate(vole~date, data=dat,sum)
