@@ -313,7 +313,7 @@ sink()
 setwd("./data") # set wd to where the data is stored
 
 load("occm_var.rda")    
-#load("case_study_data.RData")
+
 yb <-occm_va # change name of imported object to fit with the rest of the code
 
 dim(yb) # check that dimensions are ok
