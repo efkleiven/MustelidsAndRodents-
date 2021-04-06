@@ -165,38 +165,38 @@ lines(least_weasel~date, data=least_weasel_occ, col="orange")
 ###    make weekly occupancy    #####################
 ######################################################
 
-vole_site2 <- aggregate(vole~yearweek+site, data=dat, max)         # max aninals per week
-vole_occ2 <- aggregate(vole~yearweek, data=vole_site2, mean)       # mean animals over site within a week
-vole_occ2$date <- as.Date(paste(vole_occ2$yearweek,1),"%Y-%U %u")
+#vole_site2 <- aggregate(vole~yearweek+site, data=dat, max)         # max aninals per week
+#vole_occ2 <- aggregate(vole~yearweek, data=vole_site2, mean)       # mean animals over site within a week
+#vole_occ2$date <- as.Date(paste(vole_occ2$yearweek,1),"%Y-%U %u")
 
-stoat_site2 <- aggregate(stoat~yearweek+site, data=dat,max)
-stoat_occ2 <- aggregate(stoat~yearweek, data=stoat_site2,mean)
-stoat_occ2$date <- as.Date(paste(stoat_occ2$yearweek,1),"%Y-%U %u")
+#stoat_site2 <- aggregate(stoat~yearweek+site, data=dat,max)
+#stoat_occ2 <- aggregate(stoat~yearweek, data=stoat_site2,mean)
+#stoat_occ2$date <- as.Date(paste(stoat_occ2$yearweek,1),"%Y-%U %u")
 
-lemming_site2 <- aggregate(lemming~yearweek+site, data=dat,max)
-lemming_occ2 <- aggregate(lemming~yearweek, data=lemming_site2,mean)
-lemming_occ2$date <- as.Date(paste(lemming_occ2$yearweek,1),"%Y-%U %u")
+#lemming_site2 <- aggregate(lemming~yearweek+site, data=dat,max)
+#lemming_occ2 <- aggregate(lemming~yearweek, data=lemming_site2,mean)
+#lemming_occ2$date <- as.Date(paste(lemming_occ2$yearweek,1),"%Y-%U %u")
 
-least_weasel_site2 <- aggregate(least_weasel~yearweek+site, data=dat,max)
-least_weasel_occ2 <- aggregate(least_weasel~yearweek, data=least_weasel_site2,mean)
-least_weasel_occ2$date <- as.Date(paste(least_weasel_occ2$yearweek,1),"%Y-%U %u")
+#least_weasel_site2 <- aggregate(least_weasel~yearweek+site, data=dat,max)
+#least_weasel_occ2 <- aggregate(least_weasel~yearweek, data=least_weasel_site2,mean)
+#least_weasel_occ2$date <- as.Date(paste(least_weasel_occ2$yearweek,1),"%Y-%U %u")
 
-plotvole <- na.omit(vole_occ2)
-plotvole$date <- c(1:length(plotvole$date))
+#plotvole <- na.omit(vole_occ2)
+#plotvole$date <- c(1:length(plotvole$date))
 
-plotlem <- na.omit(lemming_occ2)
-plotlem$date <- c(1:length(plotlem$date))
+#plotlem <- na.omit(lemming_occ2)
+#plotlem$date <- c(1:length(plotlem$date))
 
-plotstoat <- na.omit(stoat_occ2)
-plotstoat$date <- c(1:length(plotstoat$date))
+#plotstoat <- na.omit(stoat_occ2)
+#plotstoat$date <- c(1:length(plotstoat$date))
 
-plotweasel <- na.omit(least_weasel_occ2)
-plotweasel$date <- c(1:length(plotweasel$date))
+#plotweasel <- na.omit(least_weasel_occ2)
+#plotweasel$date <- c(1:length(plotweasel$date))
 
-plot(vole ~ date, data=plotvole, type="l", col="blue", xlim=c(0,260), ylim=c(0,1), xlab="", ylab="", lwd=3)
-lines(lemming ~ date, data=plotlem, col="red", lwd=3)
-lines(stoat ~ date, data=plotstoat, col="green", lwd=3)
-lines(least_weasel ~ date, data=plotweasel, col="orange", lwd=3)
+#plot(vole ~ date, data=plotvole, type="l", col="blue", xlim=c(0,260), ylim=c(0,1), xlab="", ylab="", lwd=3)
+#lines(lemming ~ date, data=plotlem, col="red", lwd=3)
+#lines(stoat ~ date, data=plotstoat, col="green", lwd=3)
+#lines(least_weasel ~ date, data=plotweasel, col="orange", lwd=3)
 #legend("topleft",legend=c("vole","lemming","stoat","least weasel"),lty=1, lwd=2,
 #       col=c("blue","red","green","orange"), cex=0.5)
 
@@ -204,59 +204,59 @@ lines(least_weasel ~ date, data=plotweasel, col="orange", lwd=3)
 # make figure with number of sites each species was observed in a given week #
 ##############################################################################
 # sum animals over site within a week
-vole_occ3 <- aggregate(vole~yearweek, data=vole_site2, sum)       
+#vole_occ3 <- aggregate(vole~yearweek, data=vole_site2, sum)       
 
-lemming_occ3 <- aggregate(lemming~yearweek, data=lemming_site2, sum)       
+#lemming_occ3 <- aggregate(lemming~yearweek, data=lemming_site2, sum)       
 
-stoat_occ3 <- aggregate(stoat~yearweek, data=stoat_site2,sum)
+#stoat_occ3 <- aggregate(stoat~yearweek, data=stoat_site2,sum)
 
-least_weasel_occ3 <- aggregate(least_weasel~yearweek, data=least_weasel_site2,sum)
+#least_weasel_occ3 <- aggregate(least_weasel~yearweek, data=least_weasel_site2,sum)
 
 # add a column for the family mustela (stoat and least weasel)
-stoat_site2$mustela <- stoat_site2$stoat+least_weasel_site2$least_weasel
-stoat_site2$mustela[stoat_site2$mustela==2]<-1
+#stoat_site2$mustela <- stoat_site2$stoat+least_weasel_site2$least_weasel
+#stoat_site2$mustela[stoat_site2$mustela==2]<-1
 
-mustela_occ3 <- aggregate(mustela~yearweek, data=stoat_site2,sum)
+#mustela_occ3 <- aggregate(mustela~yearweek, data=stoat_site2,sum)
 
-stoat_site2$rodent <- vole_site2$vole+lemming_site2$lemming
-stoat_site2$rodent[stoat_site2$rodent==2]<-1
+#stoat_site2$rodent <- vole_site2$vole+lemming_site2$lemming
+#stoat_site2$rodent[stoat_site2$rodent==2]<-1
 
-rodent_occ3 <- aggregate(rodent~yearweek, data=stoat_site2,sum)
+#rodent_occ3 <- aggregate(rodent~yearweek, data=stoat_site2,sum)
 
 
 
 # remove NA's (some NA apeared around new year from the week formulation)
 # and change time to julian week
-plotvole <- na.omit(vole_occ3)
-plotvole$date <- c(1:nrow(plotvole))
+#plotvole <- na.omit(vole_occ3)
+#plotvole$date <- c(1:nrow(plotvole))
 
-plotlemming <- na.omit(lemming_occ3)
-plotlemming$date <- c(1:nrow(plotlemming))
+#plotlemming <- na.omit(lemming_occ3)
+#plotlemming$date <- c(1:nrow(plotlemming))
 
-plotrodent <- na.omit(rodent_occ3)
-plotrodent$date <- c(1:nrow(plotrodent))
+#plotrodent <- na.omit(rodent_occ3)
+#plotrodent$date <- c(1:nrow(plotrodent))
 
-plotstoat <- na.omit(stoat_occ3)
-plotstoat$date <- c(1:nrow(plotstoat))
+#plotstoat <- na.omit(stoat_occ3)
+#plotstoat$date <- c(1:nrow(plotstoat))
 
-plotmustela <- na.omit(mustela_occ3)
-plotmustela$date <- c(1:nrow(plotstoat))
+#plotmustela <- na.omit(mustela_occ3)
+#plotmustela$date <- c(1:nrow(plotstoat))
 
-plotleast_weasel <- na.omit(least_weasel_occ3)
-plotleast_weasel$date <- c(1:nrow(plotleast_weasel))
+#plotleast_weasel <- na.omit(least_weasel_occ3)
+#plotleast_weasel$date <- c(1:nrow(plotleast_weasel))
 
 
 # make plot
-plot(NULL, type="n", col="blue", xlim=c(1,260), ylim=c(0,70),
-     xlab="week", ylab="ncam", main="Occ trend Varanger", axes=F)
-axis(side=1, c(1:260), c(1:260))
-axis(side=2, c(0:60))
-lines(vole ~ date, data=plotvole, col="blue")
-lines(stoat ~ date, data=plotstoat, col="green")
-lines(least_weasel ~ date, data=plotleast_weasel, col="red")
-lines(mustela ~ date, data=plotmustela, col="black")
-lines(lemming ~ date, data=plotlemming, col="darkgray")
-lines(rodent ~ date, data=plotrodent, col="brown")
+#plot(NULL, type="n", col="blue", xlim=c(1,260), ylim=c(0,70),
+#     xlab="week", ylab="ncam", main="Occ trend Varanger", axes=F)
+#axis(side=1, c(1:260), c(1:260))
+#axis(side=2, c(0:60))
+#lines(vole ~ date, data=plotvole, col="blue")
+#lines(stoat ~ date, data=plotstoat, col="green")
+#lines(least_weasel ~ date, data=plotleast_weasel, col="red")
+#lines(mustela ~ date, data=plotmustela, col="black")
+#lines(lemming ~ date, data=plotlemming, col="darkgray")
+#lines(rodent ~ date, data=plotrodent, col="brown")
 
 #legend("topleft",legend=c("vole","stoat"),lty=1, lwd=2,
 #       col=c("blue","green"), cex=0.5)
@@ -305,6 +305,7 @@ table(occ_mustela2)
 
 # combine vole and lemmings to a rodent functional group
 occ_rodent <- occ_vole2+occ_lemming2 
+occ_rodent[occ_rodent==2] <- 1
 
 table(occ_rodent)
 dim(occ_rodent)
