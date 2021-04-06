@@ -4,7 +4,8 @@ library(dplyr)
 library(tidyr)
 
 # set working directory
-wd <- "C:/Eivind/GitProjects/MustelidsAndRodents-"
+#wd <- "C:/Eivind/GitProjects/MustelidsAndRodents-"
+wd <- "~/UiT/GitProjects/MustelidsAndRodents-"
 setwd(wd)
 
 # look at files in the directory

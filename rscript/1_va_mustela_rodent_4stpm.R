@@ -363,7 +363,7 @@ params <- c("gamA","gamB","gamAB","gamBA","epsA","epsB","epsAB","epsBA","psi",
             "ratio_gamA", "ratio_gamB", "ratio_epsA", "ratio_epsB", "ratio_GamA", "ratio_GamB", "ratio_EpsA", "ratio_EpsB")
 
 # MCMC settings
-ni <- 10000   ;   nt <- 10   ;   nb <- 2500 ;   nc <- 4    ;   na <- 2500
+ni <- 5000   ;   nt <- 10   ;   nb <- 0 ;   nc <- 4    ;   na <- 0
 
 # run model in jags
 setwd("../")
@@ -373,6 +373,6 @@ va_mustela_rodent <- jags(data, inits=inits, params, "mod_seas_det_4stpm.txt", n
 
 # Save model
 setwd("./model_output")
-save(va__mustela_rodent, file="va_mustela_rodent.rda")
+save(va_mustela_rodent, file="va_mustela_rodent.rda")
 
 #~ End of script
