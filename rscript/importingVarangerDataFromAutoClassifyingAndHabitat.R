@@ -365,7 +365,7 @@ save(occm_va, file="occm_var.rda")
 str(dat)
 # make empty arrays with correct dimentions
 hab <- array(NA, dim=c(8, 12))
-site_2 <- array(NA, dim=c(8, 12))
+site_2 <- data.frame()
 
 # extract unique site names
 site <- unique(vole_site$site)
@@ -381,7 +381,11 @@ site_2[7, 1:12] <- site[69:80]
 site_2[8, 1:12] <- site[81:92]
 
 # make dummy variable describing number of sites in each block
-ind <- c(11,11,11,11,12,12,12,12) 
+ind <- c(11,11,11,11,12,12,12,12)
+
+dat$habitat[dat$habitat=="hummock mire"] <- 1
+dat$habitat[dat$habitat=="snowbed"] <- 2
+dat$habitat <- as.integer(dat$habitat)
 
 # extract habitat for each site and place in the empty hab array with block structure
 for(b in 1:8){
