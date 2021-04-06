@@ -46,7 +46,7 @@
   
     # First season probabilities for each state
     #site    
-    for(j in 1:ind[b]){
+    for(j in 1:nsite){
     fsm[j, b, 1] <- 1-psi[b,1]-psi[b,2]-psi[b,3]  #-----------|U
     fsm[j, b, 2] <- psi[b,1]                      #-----------|A
     fsm[j, b, 3] <- psi[b,2]                      #-----------|B
@@ -221,7 +221,7 @@
         x[b, t+1] ~ dcat(btpm[(1:nout), x[b, t]])
 
       # latent site state for the rest of the seasons
-      for(j in 1:ind[b]){
+      for(j in 1:nsite){
         z[j, b, t+1] ~ dcat( stpm[( 1:nout ) , z[ j, b, t], x[b,t+1]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
        
           for(day in 1:nsurvey) {      
@@ -288,3 +288,20 @@
     
     }# end
     
+                                                                                                                                         [1] "data"                       "mod_seas_det_4stpm.txt"     "MustelidsAndRodents-.Rproj" "README.md"                 
+[5] "rscript"                   
+ list()
+[1] "classifications_komagdalen_2016_2020_03_02.csv"       "classifications_komagdalen_2017_2020_03_02.csv"      
+[3] "classifications_komagdalen_2018_2020_03_02.csv"       "classifications_komagdalen_2019_2020_03_02.csv"      
+[5] "classifications_komagdalen_2020_2020_03_02.csv"       "classifications_vestre_jakobselv_2019_2020_03_02.csv"
+[7] "classifications_vestre_jakosbelv_2020_2020_03_02.csv" "occm_var.rda"                                        
+[1] "/home/ekl013/UiT/GitProjects/MustelidsAndRodents-/data"
+[1] "classifications_komagdalen_2016_2020_03_02.csv"       "classifications_komagdalen_2017_2020_03_02.csv"      
+[3] "classifications_komagdalen_2018_2020_03_02.csv"       "classifications_komagdalen_2019_2020_03_02.csv"      
+[5] "classifications_komagdalen_2020_2020_03_02.csv"       "classifications_vestre_jakobselv_2019_2020_03_02.csv"
+[7] "classifications_vestre_jakosbelv_2020_2020_03_02.csv" "occm_var.rda"                                        
+[1] "classifications_komagdalen_2016_2020_03_02.csv"       "classifications_komagdalen_2017_2020_03_02.csv"      
+[3] "classifications_komagdalen_2018_2020_03_02.csv"       "classifications_komagdalen_2019_2020_03_02.csv"      
+[5] "classifications_komagdalen_2020_2020_03_02.csv"       "classifications_vestre_jakobselv_2019_2020_03_02.csv"
+[7] "classifications_vestre_jakosbelv_2020_2020_03_02.csv" "occm_var.rda"                                        
+[1] "/home/ekl013/UiT/GitProjects/MustelidsAndRodents-/data"

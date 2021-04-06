@@ -11,9 +11,8 @@ rm(list=ls())
 library(jagsUI)
 
 # set working directory
-setwd("C:/Eivind/GitProjects/MustelidsAndRodents-")
+setwd("~/UiT/GitProjects/MustelidsAndRodents-")
 
-#
 # Specify model in JAGS language
 sink("mod_seas_det_4stpm.txt")
 cat("
@@ -78,9 +77,9 @@ cat("
     
     # for block, which is just a function of the states of the sites within each block
    
-     x[b,1] <- ifelse(sum(z[,b,1]==1) == ind[b], 1,
-                ifelse(sum(z[,b,1]==2) + sum(z[,b,1]==1) == ind[b], 2,
-                  ifelse(sum(z[,b,1]==3) + sum(z[,b,1]==1) == ind[b], 3, 4) ) )
+     x[b,1] <- ifelse(sum(z[1:ind[b],b,1]==1) == ind[b], 1,
+                ifelse(sum(z[1:ind[b],b,1]==2) + sum(z[1:ind[b],b,1]==1) == ind[b], 2,
+                  ifelse(sum(z[1:ind[b],b,1]==3) + sum(z[1:ind[b],b,1]==1) == ind[b], 3, 4) ) )
     
     } # end block loop
 
@@ -240,10 +239,10 @@ cat("
 
       # latent site state for the rest of the seasons
       for(j in 1:ind[b]){
-        z[j, b, t+1] ~ dcat( stpm[( 1:nout ) , z[ j, b, t], x[b,t+1]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
+        z[j, b, t+1] ~ dcat( stpm[(1:nout) , z[j, b, t], x[b, t+1]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
        
           for(day in 1:nsurvey) {      
-            y[j, b, t, day] ~ dcat( dpm[t, ( 1:nout ) , z[j, b, t]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
+            y[j, b, t, day] ~ dcat( dpm[t, (1:nout) , z[j, b, t]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
           } #end survey loop
         } # end site loop
       } # end block loop
@@ -313,12 +312,15 @@ setwd("./data") # set wd to where the data is stored
 
 load("occm_var.rda")    
 #load("case_study_data.RData")
-yb <-occm_va # change name of imported object to fit with the rest of the code
+yb <-occm_va[,,1:10,] # change name of imported object to fit with the rest of the code
 
 dim(yb) # check that dimensions are ok
 
 # make an index vector to allow for different number of sites in each block
 ind <- c(11,11,11,11,12,12,12,12)
+
+len <- c(rep(2,20), rep(1,30))
+xx.rowp <- cumsum(c(1,len))
 
 #load cov
 #load("season.rda") 
@@ -352,9 +354,19 @@ for(j in 1:nsite){
         sp_inits[j,b,i] <- 4}
     }}}
 
+#add NA for sites that does not exist
+sp_inits[12,1,]
+sp_inits[12,2,]
+sp_inits[12,3,]
+sp_inits[12,4,]
+
+sp_inits[1,5,1] <- 4
+sp_inits[1,6,1] <- 4
+sp_inits[1,7,1] <- 4
+#z = sp_inits,
 # give initial values
 inits=function(){list( 
-  z = sp_inits, alpha1=runif(1), alpha2=runif(1),
+ alpha1=runif(1), alpha2=runif(1),
   gamA=runif(1,0.1,0.9), gamB=runif(1,0.1,0.9), gamAB=runif(1,0.1,0.9), gamBA=runif(1,0.1,0.9),
   epsA=runif(1,0.1,0.9), epsB=runif(1,0.1,0.9), epsAB=runif(1,0.1,0.9), epsBA=runif(1,0.1,0.9), 
   GamA=runif(1,0.1,0.9), GamB=runif(1,0.1,0.9), GamAB=runif(1,0.1,0.9), GamBA=runif(1,0.1,0.9),

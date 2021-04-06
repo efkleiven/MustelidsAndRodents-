@@ -11,7 +11,8 @@ rm(list=ls())
 library(jagsUI)
 
 # set working directory
-setwd("C:/Eivind/GitProjects/MustelidsAndRodents-")
+#setwd("C:/Eivind/GitProjects/MustelidsAndRodents-")
+setwd("~/UiT/GitProjects/MustelidsAndRodents-")
 
 #
 # Specify model in JAGS language
@@ -55,10 +56,6 @@ cat("
     
     alphaA0 <- logit(alpha1)
     alphaB0 <- logit(alpha2)
-    
-    # slope param det prob
-    alphaA1 ~ dunif(-10 , 10)
-    alphaB1 ~ dunif(-10 , 10)   
     
   # initial state parameters
     for(b in 1:nblock){
@@ -282,8 +279,8 @@ cat("
     dpm[t, 4, 4] <- pA[t] * pB[t]          #--|OS = AB
     
     ## logit links for detection probs
-    logit(pA[t]) <- alphaA0 + alphaA1 * season[t]
-    logit(pB[t]) <- alphaB0 + alphaB1 * season[t]
+    logit(pA[t]) <- alphaA0 
+    logit(pB[t]) <- alphaB0 
     } #close time loop
     
     ## Derived parameters
@@ -321,13 +318,9 @@ yb <-occm_va # change name of imported object to fit with the rest of the code
 
 dim(yb) # check that dimensions are ok
 
-#load cov
-load("season.rda") 
-season <- season[1:203]
-
 # give data
 data <-list(nseason = dim(yb)[3], nblock = dim(yb)[2], nsite = dim(yb)[1], nsurvey = dim(yb)[4], 
-            nout=4, y = yb, season = season)
+            nout=4, y = yb)
 
 # naming some parameters for loops further down in this script
 nseason = dim(yb)[3]; nblock = dim(yb)[2]; nsite = dim(yb)[1]; nsurvey = dim(yb)[4]
@@ -355,7 +348,7 @@ for(j in 1:nsite){
 
 # give initial values
 inits=function(){list( 
-  z = sp_inits, alpha1=runif(1), alpha2=runif(1), alphaA1=rnorm(1), alphaB1=rnorm(1),
+  z = sp_inits, alpha1=runif(1), alpha2=runif(1),
   gamA=runif(1,0.1,0.9), gamB=runif(1,0.1,0.9), gamAB=runif(1,0.1,0.9), gamBA=runif(1,0.1,0.9),
   epsA=runif(1,0.1,0.9), epsB=runif(1,0.1,0.9), epsAB=runif(1,0.1,0.9), epsBA=runif(1,0.1,0.9), 
   GamA=runif(1,0.1,0.9), GamB=runif(1,0.1,0.9), GamAB=runif(1,0.1,0.9), GamBA=runif(1,0.1,0.9),
@@ -365,21 +358,21 @@ inits=function(){list(
 # Parameters monitored
 params <- c("gamA","gamB","gamAB","gamBA","epsA","epsB","epsAB","epsBA","psi",
             "GamA","GamB","GamAB","GamBA","EpsA","EpsB","EpsAB","EpsBA", "pA","pB","z","x",
-            "alphaA0","alphaB0","alphaA1","alphaB1", 
+            "alphaA0","alphaB0", 
             "diff_gamA", "diff_gamB", "diff_epsA", "diff_epsB", "diff_GamA", "diff_GamB", "diff_EpsA", "diff_EpsB",
             "ratio_gamA", "ratio_gamB", "ratio_epsA", "ratio_epsB", "ratio_GamA", "ratio_GamB", "ratio_EpsA", "ratio_EpsB")
 
 # MCMC settings
-ni <- 100000   ;   nt <- 20   ;   nb <- 25000   ;   nc <- 4    ;   na <- 25000
+ni <- 10000   ;   nt <- 10   ;   nb <- 2500 ;   nc <- 4    ;   na <- 2500
 
 # run model in jags
 setwd("../")
 
-va_snowbed_mustela_rodent_sdet_4stpm_ni100k_3 <- jags(data, inits=inits, params, "mod_seas_det_4stpm.txt", n.chains = nc,
+va_mustela_rodent <- jags(data, inits=inits, params, "mod_seas_det_4stpm.txt", n.chains = nc,
                                                      n.thin = nt, n.iter = ni, n.burnin = nb, n.adapt=na, parallel = T)
 
 # Save model
 setwd("./model_output")
-save(va_snowbed_mustela_rodent_sdet_4stpm_ni100k_3, file="va_snowbed_mustela_rodent_sdet_4stpm_ni100k_3.rda")
+save(va__mustela_rodent, file="va_mustela_rodent.rda")
 
 #~ End of script
