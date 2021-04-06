@@ -4,8 +4,7 @@ library(dplyr)
 library(tidyr)
 
 # set working directory
-#wd <- "C:/Eivind/GitProjects/MustelidsAndRodents-"
-wd <- "~/UiT/GitProjects/MustelidsAndRodents-"
+wd <- "C:/Eivind/GitProjects/MustelidsAndRodents-"
 setwd(wd)
 
 # look at files in the directory
@@ -359,4 +358,39 @@ summary(occm_va)
 setwd("C:/Eivind/GitProjects/MustelidsAndRodents-/data")
 save(occm_va, file="occm_var.rda")
 
+###########################
+# make habitat covariate ##
+###########################
+
+str(dat)
+# make empty arrays with correct dimentions
+hab <- array(NA, dim=c(8, 12))
+site_2 <- array(NA, dim=c(8, 12))
+
+# extract unique site names
+site <- unique(vole_site$site)
+
+# fill in site names in the empty array with block structure
+site_2[1, 1:11] <- site[1:11]
+site_2[2, 1:11] <- site[12:22]
+site_2[3, 1:11] <- site[23:33]
+site_2[4, 1:11] <- site[34:44]
+site_2[5, 1:12] <- site[45:56]
+site_2[6, 1:12] <- site[57:68]
+site_2[7, 1:12] <- site[69:80]
+site_2[8, 1:12] <- site[81:92]
+
+# make dummy variable describing number of sites in each block
+ind <- c(11,11,11,11,12,12,12,12) 
+
+# extract habitat for each site and place in the empty hab array with block structure
+for(b in 1:8){
+  for(i in 1:ind[b]){
+    hab[b,i] <- dat$habitat[dat$site==site_2[b,i]][1]
+  }}
+
+# save habitate covariate
+save(hab, file="hab.rda")
+
 #~ End of script
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
