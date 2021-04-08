@@ -49,6 +49,10 @@ metadf <- do.call(rbind, ctlist)
 metadf1 <- select(metadf, DateTimeOriginal, TriggerMode, Sequence, AmbientTemperature, NewFileName)
 names(metadf1) <- c("datetime", "trigger_mode", "sequence", "temp", "NewFileName")
 
+metadf1$datetime <- as.character(as.POSIXct(metadf1$datetime, format="%Y:%m:%d %H:%M:%S"))
+
+str(metadf1)
+
 # load meta data from Komag 2016-2018 which have a different format
 setwd("./metadata2")
 dat2 <- list()
@@ -75,12 +79,12 @@ cameratrap1 <- dplyr::left_join(data1, metadf4, by="NewFileName")
 cameratrap1$datetime <- strptime(cameratrap1$datetime, format="%Y-%m-%d %H:%M:%S", tz="CET") #Central European Time
 
 # remove unimportant variables
-#cameratrap2 <- select(cameratrap1, site, habitat, datetime, temp, answer, vole, lemming, stoat, least_weasel, mustela, confidence1)
-#tail(cameratrap2)
+cameratrap2 <- select(cameratrap1, site, habitat, datetime, temp, answer, vole, lemming, stoat, least_weasel, mustela, confidence1)
+tail(cameratrap2)
 
-plot(cameratrap1$temp)
+#plot(cameratrap1$temp)
+
 setwd("../")
 write.csv(cameratrap2, "varanger_cameradata_final.csv")
 
 #~ End of Script
-
