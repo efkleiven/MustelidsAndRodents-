@@ -72,14 +72,14 @@ names(metadf3) <- c("datetime", "trigger_mode", "sequence", "temp", "NewFileName
 # combine the two different meta data files
 metadf4 <- rbind(metadf1, metadf3)
 
-# add metadata variables to haakoya camera data
+# add metadata variables to camera data
 cameratrap1 <- dplyr::left_join(data1, metadf4, by="NewFileName")
 
 # format time and data
 cameratrap1$datetime <- strptime(cameratrap1$datetime, format="%Y-%m-%d %H:%M:%S", tz="CET") #Central European Time
 
 # remove unimportant variables
-cameratrap2 <- select(cameratrap1, site, habitat, datetime, temp, answer, vole, lemming, stoat, least_weasel, mustela, confidence1)
+cameratrap2 <- select(cameratrap1, site, habitat, datetime, temp, answer, vole, lemming, stoat, least_weasel, mustela, confidence1, trigger_mode)
 tail(cameratrap2)
 
 #plot(cameratrap1$temp)
