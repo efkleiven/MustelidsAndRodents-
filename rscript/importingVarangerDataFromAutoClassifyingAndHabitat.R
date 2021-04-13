@@ -4,8 +4,8 @@ library(dplyr)
 library(tidyr)
 
 # set working directory
-wd <- "C:/Eivind/GitProjects/MustelidsAndRodents-"
-setwd(wd)
+#wd <- "C:/Eivind/GitProjects/MustelidsAndRodents-"
+#setwd(wd)
 
 # look at files in the directory
 dir() 
@@ -96,7 +96,7 @@ df2$mustela <- df2$stoat+df2$least_weasel
 
 #############################################################
 # import metadata (which will provide info on the habitat of each site)
-setwd("H:/UiT/CameraTrapsForSmallMammals/Data")
+setwd("~/UiT/CameraTrapsForSmallMammals/Data")
 metadata <- read.csv("Small mammal camera trap metadata locations.csv", header=T, sep=";")
 
 # check that it looks fine
@@ -314,6 +314,9 @@ dim(occ_rodent)
 ## Make multi state occupancy tables with block structure ###
 #############################################################
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# For rodents and mustelids
+
 # set the mustelids to 2
 occ_mustela2[occ_mustela2==1] <- 2
 
@@ -358,6 +361,103 @@ summary(occm_va)
 setwd("C:/Eivind/GitProjects/MustelidsAndRodents-/data")
 save(occm_va, file="occm_var.rda")
 
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# For voles and mustelids
+
+# set the mustelids to 2
+occ_mustela2[occ_mustela2==1] <- 2
+
+# making a multi state array for mustelids and rodents
+occ_va_vole <- occ_mustela2+occ_vole2 
+table(occ_va_vole)
+
+# changing states from 0,1,2,3 to 1,2,3,4 (needed for the categorical dist in Jags)
+occ_va_vole[occ_va_vole==3]<-4
+occ_va_vole[occ_va_vole==2]<-3
+occ_va_vole[occ_va_vole==1]<-2
+occ_va_vole[occ_va_vole==0]<-1
+
+# add block dim
+nblocks <- 8
+
+# making empty array to fill in the multi state occupancy matrix
+# a problem here is that the sites in Komag have only 11 sites per block, 
+# while the sites in VJ have 12 sites per block. Now I create empty sites in komag, which dosen't make sence.
+# probably this will also cause problems when we want to include covariates. 
+
+occm_va_vole <- array(NA, dim=c(12,nblocks,nprocc,ndays))
+
+occ_va_vole <- aperm(occ_va_vole, c(3,2,1))
+
+occm_va_vole[1:11,1,,] <- occ_va_vole[1:11,,] 
+occm_va_vole[1:11,2,,] <- occ_va_vole[12:22,,] 
+occm_va_vole[1:11,3,,] <- occ_va_vole[23:33,,] 
+occm_va_vole[1:11,4,,] <- occ_va_vole[34:44,,]
+occm_va_vole[,5,,] <- occ_va_vole[45:56,,] 
+occm_va_vole[,6,,] <- occ_va_vole[57:68,,] 
+occm_va_vole[,7,,] <- occ_va_vole[69:80,,] 
+occm_va_vole[,8,,] <- occ_va_vole[81:92,,] 
+
+table(occm_va_vole)
+dim(occm_va_vole)
+
+# check number of NA's
+summary(occm_va_vole) 
+
+# save 
+#setwd("C:/Eivind/GitProjects/MustelidsAndRodents-/data")
+setwd("~/UiT/GitProjects/MustelidsAndRodents-/data")
+save(occm_va_vole, file="occm_var_vole.rda")
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# For lemmings and mustelids
+
+# set the mustelids to 2
+occ_mustela2[occ_mustela2==1] <- 2
+
+# making a multi state array for mustelids and rodents
+occ_va_lem <- occ_mustela2+occ_lemming2 
+table(occ_va_lem)
+
+# changing states from 0,1,2,3 to 1,2,3,4 (needed for the categorical dist in Jags)
+occ_va_lem[occ_va_lem==3]<-4
+occ_va_lem[occ_va_lem==2]<-3
+occ_va_lem[occ_va_lem==1]<-2
+occ_va_lem[occ_va_lem==0]<-1
+
+# add block dim
+nblocks <- 8
+
+# making empty array to fill in the multi state occupancy matrix
+# a problem here is that the sites in Komag have only 11 sites per block, 
+# while the sites in VJ have 12 sites per block. Now I create empty sites in komag, which dosen't make sence.
+# probably this will also cause problems when we want to include covariates. 
+
+occm_va_lem <- array(NA, dim=c(12,nblocks,nprocc,ndays))
+
+occ_va_lem <- aperm(occ_va_lem, c(3,2,1))
+
+occm_va_lem[1:11,1,,] <- occ_va_lem[1:11,,] 
+occm_va_lem[1:11,2,,] <- occ_va_lem[12:22,,] 
+occm_va_lem[1:11,3,,] <- occ_va_lem[23:33,,] 
+occm_va_lem[1:11,4,,] <- occ_va_lem[34:44,,]
+occm_va_lem[,5,,] <- occ_va_lem[45:56,,] 
+occm_va_lem[,6,,] <- occ_va_lem[57:68,,] 
+occm_va_lem[,7,,] <- occ_va_lem[69:80,,] 
+occm_va_lem[,8,,] <- occ_va_lem[81:92,,] 
+
+table(occm_va_lem)
+dim(occm_va_lem)
+
+# check number of NA's
+summary(occm_va_lem) 
+
+# save 
+#setwd("C:/Eivind/GitProjects/MustelidsAndRodents-/data")
+setwd("~/UiT/GitProjects/MustelidsAndRodents-/data")
+save(occm_va_lem, file="occm_var_lem.rda")
+
 ###########################
 # make habitat covariate ##
 ###########################
@@ -393,7 +493,19 @@ for(b in 1:8){
     hab[b,i] <- dat$habitat[dat$site==site_2[b,i]][1]
   }}
 
+# fill in manually the habitat of that last site in each block in komag (block 1-4)
+# these sites was not established before 2020, hence they are not included in the dataset
+# however, a covariate from here is still need.
+
+hab[1,12] <- 2
+hab[2,12] <- 2
+hab[3,12] <- 1
+hab[4,12] <- 1
+
+hab
+
 # save habitate covariate
+setwd("~/UiT/GitProjects/MustelidsAndRodents-/data")
 save(hab, file="hab.rda")
 
 #~ End of script
