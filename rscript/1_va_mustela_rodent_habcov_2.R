@@ -60,35 +60,36 @@ cat("
       beta6[i]  ~ dunif(0,1)
       beta7[i]  ~ dunif(0,1) 
       beta8[i]  ~ dunif(0,1)
-      beta9[i]  ~ dunif(0,1) 
-      beta10[i] ~ dunif(0,1)
-      beta11[i] ~ dunif(0,1) 
-      beta12[i] ~ dunif(0,1)
-      beta13[i] ~ dunif(0,1) 
-      beta14[i] ~ dunif(0,1)
-      beta15[i] ~ dunif(0,1) 
-      beta16[i] ~ dunif(0,1)
+
+      beta0_gamA[i]  <- logit(beta1[i])
+      beta0_gamAB[i] <- logit(beta2[i])
+      beta0_gamB[i]  <- logit(beta3[i])
+      beta0_gamBA[i] <- logit(beta4[i])
     
-      beta0_gamA[i]  <- logit(beta1)
-      beta0_gamAB[i] <- logit(beta2)
-      beta0_gamB[i]  <- logit(beta3)
-      beta0_gamBA[i] <- logit(beta4)
+      beta0_epsA[i]  <- logit(beta5[i])
+      beta0_epsAB[i] <- logit(beta6[i])
+      beta0_epsB[i]  <- logit(beta7[i])
+      beta0_epsBA[i] <- logit(beta8[i])
+    } # end loop
     
-      beta0_epsA[i]  <- logit(beta5)
-      beta0_epsAB[i] <- logit(beta6)
-      beta0_epsB[i]  <- logit(beta7)
-      beta0_epsBA[i] <- logit(beta8)
+      beta9  ~ dunif(0,1) 
+      beta10 ~ dunif(0,1)
+      beta11 ~ dunif(0,1) 
+      beta12 ~ dunif(0,1)
+      beta13 ~ dunif(0,1) 
+      beta14 ~ dunif(0,1)
+      beta15 ~ dunif(0,1) 
+      beta16 ~ dunif(0,1)
+      
+      beta0_GamA  <- logit(beta9)
+      beta0_GamAB <- logit(beta10)
+      beta0_GamB  <- logit(beta11)
+      beta0_GamBA <- logit(beta12)
     
-      beta0_GamA[i]  <- logit(beta9)
-      beta0_GamAB[i] <- logit(beta10)
-      beta0_GamB[i]  <- logit(beta11)
-      beta0_GamBA[i] <- logit(beta12)
-    
-      beta0_EpsA[i]  <- logit(beta13)
-      beta0_EpsAB[i] <- logit(beta14)
-      beta0_EpsB[i]  <- logit(beta15)
-      beta0_EpsBA[i] <- logit(beta16)
-      }
+      beta0_EpsA  <- logit(beta13)
+      beta0_EpsAB <- logit(beta14)
+      beta0_EpsB  <- logit(beta15)
+      beta0_EpsBA <- logit(beta16)
       
     # interscept det prob
     alpha1 ~ dunif(0,1) 
@@ -156,7 +157,6 @@ cat("
     btpm[b, 4, 4] <- (1-EpsAB[b]) * (1-EpsBA[b])  #--|AB
 
 
-      
     ####################################################
     ## stpm = site transition probability matrix.     ##
     ## These are dependent on the block level state   ##
@@ -288,28 +288,29 @@ cat("
     logit(epsAB[b, j]) <- beta0_epsAB[hab[b, j]] 
     logit(epsB[b, j])  <- beta0_epsB[hab[b, j]]
     logit(epsBA[b, j]) <- beta0_epsBA[hab[b, j]] 
-
-    logit(GamA[b, j])  <- beta0_GamA[hab[b, j]] 
-    logit(GamAB[b, j]) <- beta0_GamAB[hab[b, j]] 
-    logit(GamB[b, j])  <- beta0_GamB[hab[b, j]] 
-    logit(GamBA[b, j]) <- beta0_GamBA[hab[b, j]] 
+   }# close site loop
+   
+    logit(GamA[b])  <- beta0_GamA 
+    logit(GamAB[b]) <- beta0_GamAB 
+    logit(GamB[b])  <- beta0_GamB 
+    logit(GamBA[b]) <- beta0_GamBA 
  
-    logit(EpsA[b, j])  <- beta0_EpsA[hab[b, j]] 
-    logit(EpsAB[b, j]) <- beta0_EpsAB[hab[b, j]] 
-    logit(EpsB[b, j])  <- beta0_EpsB[hab[b, j]] 
-    logit(EpsBA[b, j]) <- beta0_EpsBA[hab[b, j]]
-    } # close site loop
+    logit(EpsA[b])  <- beta0_EpsA 
+    logit(EpsAB[b]) <- beta0_EpsAB 
+    logit(EpsB[b])  <- beta0_EpsB 
+    logit(EpsBA[b]) <- beta0_EpsBA
+    
   } # close block loop
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     # latent block state for the rest of the seasons
     for(t in 1:(nseason-1)){
       for(b in 1:nblock){
-        x[b, t+1] ~ dcat(btpm[(1:nout), x[b, t]])
+        x[b, t+1] ~ dcat(btpm[b, (1:nout), x[b, t]])
 
       # latent site state for the rest of the seasons
       for(j in 1:nsite){
-        z[j, b, t+1] ~ dcat( stpm[( 1:nout ) , z[ j, b, t], x[b,t+1]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
+        z[j, b, t+1] ~ dcat( stpm[b, j, ( 1:nout ) , z[ j, b, t], x[b,t+1]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
        
           for(day in 1:nsurvey) {      
             y[j, b, t, day] ~ dcat( dpm[t, ( 1:nout ) , z[j, b, t]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
@@ -353,25 +354,25 @@ cat("
     
     ## Derived parameters
     
-    diff_gamA <- gamA - gamAB
-    diff_gamB <- gamB - gamBA
-    diff_epsA <- epsA - epsAB
-    diff_epsB <- epsB - epsBA
+    #diff_gamA <- gamA - gamAB
+    #diff_gamB <- gamB - gamBA
+    #diff_epsA <- epsA - epsAB
+    #diff_epsB <- epsB - epsBA
     
-    diff_GamA <- GamA - GamAB
-    diff_GamB <- GamB - GamBA
-    diff_EpsA <- EpsA - EpsAB
-    diff_EpsB <- EpsB - EpsBA
+    #diff_GamA <- GamA - GamAB
+    #diff_GamB <- GamB - GamBA
+    #diff_EpsA <- EpsA - EpsAB
+    #diff_EpsB <- EpsB - EpsBA
     
-    ratio_gamA <- gamA / gamAB
-    ratio_gamB <- gamB / gamBA
-    ratio_epsA <- epsAB / epsA
-    ratio_epsB <- epsB / epsBA
+    #ratio_gamA <- gamA / gamAB
+    #ratio_gamB <- gamB / gamBA
+    #ratio_epsA <- epsAB / epsA
+    #ratio_epsB <- epsB / epsBA
     
-    ratio_GamA <- GamA / GamAB
-    ratio_GamB <- GamBA / GamB
-    ratio_EpsA <- EpsAB / EpsA
-    ratio_EpsB <- EpsB / EpsBA    
+    #ratio_GamA <- GamA / GamAB
+    #ratio_GamB <- GamBA / GamB
+    #ratio_EpsA <- EpsAB / EpsA
+    #ratio_EpsB <- EpsB / EpsBA    
     
     }# end
     ",fill = TRUE)
@@ -388,9 +389,6 @@ dim(yb) # check that dimensions are ok
 
 ## import hab cov
 load("hab.rda")
-
-hab[hab=="hummock mire"] <- as.integer(1)
-hab[hab=="snowbed"] <- as.integer(2)
 
 # give data
 data <-list(nseason = dim(yb)[3], nblock = dim(yb)[2], nsite = dim(yb)[1], nsurvey = dim(yb)[4], 
@@ -423,10 +421,10 @@ for(j in 1:nsite){
 # give initial values
 inits=function(){list( 
   z = sp_inits, alpha1=runif(1), alpha2=runif(1),
-  beta0_gamA=runif(1,0.1,0.9), beta0_gamB=runif(1,0.1,0.9), beta0_gamAB=runif(1,0.1,0.9), beta0_gamBA=runif(1,0.1,0.9),
-  beta0_epsA=runif(1,0.1,0.9), beta0_epsB=runif(1,0.1,0.9), beta0_epsAB=runif(1,0.1,0.9), beta0_epsBA=runif(1,0.1,0.9), 
-  beta0_GamA=runif(1,0.1,0.9), beta0_GamB=runif(1,0.1,0.9), beta0_GamAB=runif(1,0.1,0.9), beta0_GamBA=runif(1,0.1,0.9),
-  beta0_EpsA=runif(1,0.1,0.9), beta0_EpsB=runif(1,0.1,0.9), beta0_EpsAB=runif(1,0.1,0.9), beta0_EpsBA=runif(1,0.1,0.9)
+  beta1=runif(2,0.1,0.9), beta2=runif(2,0.1,0.9), beta3=runif(2,0.1,0.9), beta4=runif(2,0.1,0.9),
+  beta5=runif(2,0.1,0.9), beta6=runif(2,0.1,0.9), beta7=runif(2,0.1,0.9), beta8=runif(2,0.1,0.9), 
+  beta9=runif(1,0.1,0.9), beta10=runif(1,0.1,0.9), beta11=runif(1,0.1,0.9), beta12=runif(1,0.1,0.9),
+  beta13=runif(1,0.1,0.9), beta14=runif(1,0.1,0.9), beta15=runif(1,0.1,0.9), beta16=runif(1,0.1,0.9)
 )}
 
 # Parameters monitored
@@ -436,21 +434,19 @@ params <- c("gamA","gamB","gamAB","gamBA","epsA","epsB","epsAB","epsBA","psi",
             "beta0_gamA", "beta0_gamAB", "beta0_gamB", "beta0_gamBA",
             "beta0_epsA", "beta0_epsAB", "beta0_epsB", "beta0_epsBA",
             "beta0_GamA", "beta0_GamAB", "beta0_GamB", "beta0_GamBA",
-            "beta0_EpsA", "beta0_EpsAB", "beta0_EpsB", "beta0_EpsBA",
-            "diff_gamA", "diff_gamB", "diff_epsA", "diff_epsB", "diff_GamA", "diff_GamB", "diff_EpsA", "diff_EpsB",
-            "ratio_gamA", "ratio_gamB", "ratio_epsA", "ratio_epsB", "ratio_GamA", "ratio_GamB", "ratio_EpsA", "ratio_EpsB")
+            "beta0_EpsA", "beta0_EpsAB", "beta0_EpsB", "beta0_EpsBA" )
 
 # MCMC settings
-ni <- 50   ;   nt <- 1   ;   nb <- 0 ;   nc <- 4    ;   na <- 0
+ni <- 1000   ;   nt <- 1   ;   nb <- 0 ;   nc <- 4    ;   na <- 500
 
 # run model in jags
 setwd("../")
 
-va_mustela_rodent_hab_2 <- jags(data, inits=inits, params, "mod_seas_det_4stpm.txt", n.chains = nc,
+va_mustela_rodent_hab_2_ni1k <- jags(data, inits=inits, params, "mod_seas_det_4stpm.txt", n.chains = nc,
                               n.thin = nt, n.iter = ni, n.burnin = nb, n.adapt=na, parallel = T)
 
 # Save model
 setwd("./model_output")
-save(va__mustela_rodent_hab_2, file="va_mustela_rodent_hab_2.rda")
+save(va_mustela_rodent_hab_2_ni1k, file="va_mustela_rodent_hab_2_ni1k.rda")
 
 #~ End of script

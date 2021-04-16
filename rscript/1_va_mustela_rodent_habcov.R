@@ -410,10 +410,10 @@ for(j in 1:nsite){
 # give initial values
 inits=function(){list( 
   z = sp_inits, alpha1=runif(1), alpha2=runif(1),
-  beta0_gamA=runif(1,0.1,0.9), beta0_gamB=runif(1,0.1,0.9), beta0_gamAB=runif(1,0.1,0.9), beta0_gamBA=runif(1,0.1,0.9),
-  beta0_epsA=runif(1,0.1,0.9), beta0_epsB=runif(1,0.1,0.9), beta0_epsAB=runif(1,0.1,0.9), beta0_epsBA=runif(1,0.1,0.9), 
-  beta0_GamA=runif(1,0.1,0.9), beta0_GamB=runif(1,0.1,0.9), beta0_GamAB=runif(1,0.1,0.9), beta0_GamBA=runif(1,0.1,0.9),
-  beta0_EpsA=runif(1,0.1,0.9), beta0_EpsB=runif(1,0.1,0.9), beta0_EpsAB=runif(1,0.1,0.9), beta0_EpsBA=runif(1,0.1,0.9)
+  beta1=runif(1,0.1,0.9), beta2=runif(1,0.1,0.9), beta3=runif(1,0.1,0.9), beta4=runif(1,0.1,0.9),
+  beta5=runif(1,0.1,0.9), beta6=runif(1,0.1,0.9), beta7=runif(1,0.1,0.9), beta8=runif(1,0.1,0.9), 
+  beta9=runif(1,0.1,0.9), beta10=runif(1,0.1,0.9), beta11=runif(1,0.1,0.9), beta12=runif(1,0.1,0.9),
+  beta13=runif(1,0.1,0.9), beta14=runif(1,0.1,0.9), beta15=runif(1,0.1,0.9), beta16=runif(1,0.1,0.9)
 )}
 
 # Parameters monitored
