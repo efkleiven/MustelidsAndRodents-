@@ -244,47 +244,45 @@ cat("
         z[j, b, t+1] ~ dcat( stpm[( 1:nout ) , z[ j, b, t], x[b,t+1]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
        
           for(day in 1:nsurvey) {      
-            y[j, b, t, day] ~ dcat( dpm[t, ( 1:nout ) , z[j, b, t]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
+            y[j, b, t, day] ~ dcat( dpm[ ( 1:nout ) , z[j, b, t]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
           } #end survey loop
         } # end site loop
       } # end block loop
-
+    } # end time loop
     
     #############################################################
     ## detection matrix (OS = observed state, TS = true state) ##
     #############################################################
     
     # TS = U
-    dpm[t, 1, 1] <- 1                      #--|OS = U
-    dpm[t, 2, 1] <- 0                      #--|OS = A
-    dpm[t, 3, 1] <- 0                      #--|OS = B
-    dpm[t, 4, 1] <- 0                      #--|OS = AB
+    dpm[ 1, 1] <- 1                      #--|OS = U
+    dpm[ 2, 1] <- 0                      #--|OS = A
+    dpm[ 3, 1] <- 0                      #--|OS = B
+    dpm[ 4, 1] <- 0                      #--|OS = AB
     
     # TS = A
-    dpm[t, 1, 2] <- 1-pA[t]                #--|OS = U
-    dpm[t, 2, 2] <- pA[t]                  #--|OS = A
-    dpm[t, 3, 2] <- 0                      #--|OS = B
-    dpm[t, 4, 2] <- 0                      #--|OS = AB
+    dpm[ 1, 2] <- 1-pA                #--|OS = U
+    dpm[ 2, 2] <- pA                  #--|OS = A
+    dpm[ 3, 2] <- 0                      #--|OS = B
+    dpm[ 4, 2] <- 0                      #--|OS = AB
     
     # TS = B
-    dpm[t, 1, 3] <- 1-pB[t]                #--|OS = U
-    dpm[t, 2, 3] <- 0                      #--|OS = A
-    dpm[t, 3, 3] <- pB[t]                  #--|OS = B
-    dpm[t, 4, 3] <- 0                      #--|OS = AB
+    dpm[ 1, 3] <- 1-pB                #--|OS = U
+    dpm[ 2, 3] <- 0                      #--|OS = A
+    dpm[ 3, 3] <- pB                  #--|OS = B
+    dpm[ 4, 3] <- 0                      #--|OS = AB
     
     # TS = AB
-    dpm[t, 1, 4] <- (1-pA[t]) * (1-pB[t])  #--|OS = U
-    dpm[t, 2, 4] <- pA[t] * (1-pB[t])      #--|OS = A
-    dpm[t, 3, 4] <- (1-pA[t]) * pB[t]      #--|OS = B
-    dpm[t, 4, 4] <- pA[t] * pB[t]          #--|OS = AB
+    dpm[ 1, 4] <- (1-pA) * (1-pB)  #--|OS = U
+    dpm[ 2, 4] <- pA * (1-pB)      #--|OS = A
+    dpm[ 3, 4] <- (1-pA) * pB      #--|OS = B
+    dpm[ 4, 4] <- pA * pB          #--|OS = AB
     
     ## logit links for detection probs
-    logit(pA[t]) <- alphaA0 
-    logit(pB[t]) <- alphaB0 
-    } #close time loop
+    logit(pA) <- alphaA0 
+    logit(pB) <- alphaB0 
     
     ## Derived parameters
-    
     diff_gamA <- gamA - gamAB
     diff_gamB <- gamB - gamBA
     diff_epsA <- epsA - epsAB
@@ -363,7 +361,7 @@ params <- c("gamA","gamB","gamAB","gamBA","epsA","epsB","epsAB","epsBA","psi",
             "ratio_gamA", "ratio_gamB", "ratio_epsA", "ratio_epsB", "ratio_GamA", "ratio_GamB", "ratio_EpsA", "ratio_EpsB")
 
 # MCMC settings
-ni <- 5000   ;   nt <- 10   ;   nb <- 0 ;   nc <- 4    ;   na <- 0
+ni <- 10000   ;   nt <- 10   ;   nb <- 0 ;   nc <- 4    ;   na <- 5000
 
 # run model in jags
 setwd("../")
@@ -373,6 +371,6 @@ va_mustela_rodent <- jags(data, inits=inits, params, "mod_seas_det_4stpm.txt", n
 
 # Save model
 setwd("./model_output")
-save(va_mustela_rodent, file="va_mustela_rodent.rda")
+save(va_mustela_rodent, file="va_mustela_rodent_ni10k.rda")
 
 #~ End of script
