@@ -3,7 +3,8 @@ library(dplyr)
 
 # set wd
 wd1 <- "C:/Eivind/GitProjects/MustelidsAndRodents-/data"
-setwd(wd1)
+wd2 <- "../data"
+setwd(wd2)
 
 # read in image annotation data
 data1 <- read.csv("varanger_camera_answer.csv", head=TRUE)
@@ -73,7 +74,7 @@ names(metadf3) <- c("datetime", "trigger_mode", "sequence", "temp", "NewFileName
 metadf4 <- rbind(metadf1, metadf3)
 
 # add metadata variables to camera data
-cameratrap1 <- dplyr::left_join(data1, metadf4, by="NewFileName")
+cameratrap1 <- left_join(data1, metadf4, by="NewFileName")
 
 # format time and data
 cameratrap1$datetime <- strptime(cameratrap1$datetime, format="%Y-%m-%d %H:%M:%S", tz="CET") #Central European Time
@@ -83,8 +84,9 @@ cameratrap2 <- select(cameratrap1, site, habitat, datetime, temp, answer, vole, 
 tail(cameratrap2)
 
 #plot(cameratrap1$temp)
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 setwd("../")
 write.csv(cameratrap2, "varanger_cameradata_final.csv")
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #~ End of Script
