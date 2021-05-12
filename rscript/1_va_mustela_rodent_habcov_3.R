@@ -104,34 +104,18 @@ cat("
     psi[b,i] ~ dunif(0,0.5) # site
     }
   
-    # First season probabilities for each state
-    #site    
-    for(j in 1:nsite){
-    fsm[j, b, 1] <- 1-psi[b,1]-psi[b,2]-psi[b,3]  #-----------|U
-    fsm[j, b, 2] <- psi[b,1]                      #-----------|A
-    fsm[j, b, 3] <- psi[b,2]                      #-----------|B
-    fsm[j, b, 4] <- psi[b,3]                      #-----------|AB
-
-    
-    # first season latent state
-    # for sites   
-      z[j, b, 1] ~ dcat( fsm[j, b, ( 1:nout )])    # site 
-    } # end site loop
-    
-    # for block, which is just a function of the states of the sites within each block
+      # for block, which is just a function of the states of the sites within each block
    
      x[b,1] <- ifelse(sum(z[,b,1]==1) == nsite, 1,
                 ifelse(sum(z[,b,1]==2) + sum(z[,b,1]==1) == nsite, 2,
                   ifelse(sum(z[,b,1]==3) + sum(z[,b,1]==1) == nsite, 3, 4) ) )
-    
-    } # end block loop
-
+  
+  
     ###############################################
     # btpm = block transition probability matrix. #
     # All columns sum to 1.                       #
     ###############################################
     
-    for(b in 1:nblock){
     # U to ...
     btpm[b, 1, 1] <- (1-GamA[b]) * (1-GamB[b])    #--|U
     btpm[b, 2, 1] <- GamA[b] * (1-GamB[b])        #--|A
@@ -157,13 +141,46 @@ cat("
     btpm[b, 4, 4] <- (1-EpsAB[b]) * (1-EpsBA[b])  #--|AB
 
 
+
+    for(t in 1:(nseason-1)){
+    
+   # latent block state for the rest of the seasons
+    x[b, t+1] ~ dcat(btpm[b, (1:nout), x[b, t]])
+    } # end time loop
+
+
+
     ####################################################
     ## stpm = site transition probability matrix.     ##
     ## These are dependent on the block level state   ##
     ## All columns sum to 1.                          ##
     ####################################################
  
+ ## Logit links for col and ext probabilities
+ 
+    logit(GamA[b])  <- beta0_GamA 
+    logit(GamAB[b]) <- beta0_GamAB 
+    logit(GamB[b])  <- beta0_GamB 
+    logit(GamBA[b]) <- beta0_GamBA 
+ 
+    logit(EpsA[b])  <- beta0_EpsA 
+    logit(EpsAB[b]) <- beta0_EpsAB 
+    logit(EpsB[b])  <- beta0_EpsB 
+    logit(EpsBA[b]) <- beta0_EpsBA
+    
+ 
    for(j in 1:nsite){
+   
+    logit(gamA[b, j])  <- beta0_gamA[hab[b, j]] 
+    logit(gamAB[b, j]) <- beta0_gamAB[hab[b, j]] 
+    logit(gamB[b, j])  <- beta0_gamB[hab[b, j]] 
+    logit(gamBA[b, j]) <- beta0_gamBA[hab[b, j]] 
+ 
+    logit(epsA[b, j])  <- beta0_epsA[hab[b, j]] 
+    logit(epsAB[b, j]) <- beta0_epsAB[hab[b, j]] 
+    logit(epsB[b, j])  <- beta0_epsB[hab[b, j]]
+    logit(epsBA[b, j]) <- beta0_epsBA[hab[b, j]] 
+  
    
     # blocks state (x) = U
     
@@ -277,80 +294,65 @@ cat("
     stpm[b, j, 4, 4, 4] <- (1-epsAB[b, j]) * (1-epsBA[b, j])  #--|AB
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## Logit links for col and ext probabilities
+ # First season probabilities for each state
+    #site 
+    
+      fsm[j, b, 1] <- 1-psi[b,1]-psi[b,2]-psi[b,3]  #-----------|U
+      fsm[j, b, 2] <- psi[b,1]                      #-----------|A
+      fsm[j, b, 3] <- psi[b,2]                      #-----------|B
+      fsm[j, b, 4] <- psi[b,3]                      #-----------|AB
 
-    logit(gamA[b, j])  <- beta0_gamA[hab[b, j]] 
-    logit(gamAB[b, j]) <- beta0_gamAB[hab[b, j]] 
-    logit(gamB[b, j])  <- beta0_gamB[hab[b, j]] 
-    logit(gamBA[b, j]) <- beta0_gamBA[hab[b, j]] 
- 
-    logit(epsA[b, j])  <- beta0_epsA[hab[b, j]] 
-    logit(epsAB[b, j]) <- beta0_epsAB[hab[b, j]] 
-    logit(epsB[b, j])  <- beta0_epsB[hab[b, j]]
-    logit(epsBA[b, j]) <- beta0_epsBA[hab[b, j]] 
-   }# close site loop
-   
-    logit(GamA[b])  <- beta0_GamA 
-    logit(GamAB[b]) <- beta0_GamAB 
-    logit(GamB[b])  <- beta0_GamB 
-    logit(GamBA[b]) <- beta0_GamBA 
- 
-    logit(EpsA[b])  <- beta0_EpsA 
-    logit(EpsAB[b]) <- beta0_EpsAB 
-    logit(EpsB[b])  <- beta0_EpsB 
-    logit(EpsBA[b]) <- beta0_EpsBA
     
-  } # close block loop
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # first season latent state
+    # for sites   
+      z[j, b, 1] ~ dcat( fsm[j, b, ( 1:nout )])    # site 
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
-    # latent block state for the rest of the seasons
     for(t in 1:(nseason-1)){
-      for(b in 1:nblock){
-        x[b, t+1] ~ dcat(btpm[b, (1:nout), x[b, t]])
-
+    
       # latent site state for the rest of the seasons
-      for(j in 1:nsite){
         z[j, b, t+1] ~ dcat( stpm[b, j, ( 1:nout ) , z[ j, b, t], x[b,t+1]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
        
           for(day in 1:nsurvey) {      
-            y[j, b, t, day] ~ dcat( dpm[t, ( 1:nout ) , z[j, b, t]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
+            y[j, b, t, day] ~ dcat( dpm[( 1:nout ) , z[j, b, t]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
           } #end survey loop
-        } # end site loop
-      } # end block loop
-
+        } # end time loop
+      } # end site loop
+        
+    } #close block loop
     
     #############################################################
     ## detection matrix (OS = observed state, TS = true state) ##
     #############################################################
     
     # TS = U
-    dpm[t, 1, 1] <- 1                      #--|OS = U
-    dpm[t, 2, 1] <- 0                      #--|OS = A
-    dpm[t, 3, 1] <- 0                      #--|OS = B
-    dpm[t, 4, 1] <- 0                      #--|OS = AB
+    dpm[1, 1] <- 1                      #--|OS = U
+    dpm[2, 1] <- 0                      #--|OS = A
+    dpm[3, 1] <- 0                      #--|OS = B
+    dpm[4, 1] <- 0                      #--|OS = AB
     
     # TS = A
-    dpm[t, 1, 2] <- 1-pA[t]                #--|OS = U
-    dpm[t, 2, 2] <- pA[t]                  #--|OS = A
-    dpm[t, 3, 2] <- 0                      #--|OS = B
-    dpm[t, 4, 2] <- 0                      #--|OS = AB
+    dpm[1, 2] <- 1-pA                #--|OS = U
+    dpm[2, 2] <- pA                  #--|OS = A
+    dpm[3, 2] <- 0                      #--|OS = B
+    dpm[4, 2] <- 0                      #--|OS = AB
     
     # TS = B
-    dpm[t, 1, 3] <- 1-pB[t]                #--|OS = U
-    dpm[t, 2, 3] <- 0                      #--|OS = A
-    dpm[t, 3, 3] <- pB[t]                  #--|OS = B
-    dpm[t, 4, 3] <- 0                      #--|OS = AB
+    dpm[ 1, 3] <- 1-pB                #--|OS = U
+    dpm[ 2, 3] <- 0                      #--|OS = A
+    dpm[ 3, 3] <- pB                  #--|OS = B
+    dpm[ 4, 3] <- 0                      #--|OS = AB
     
     # TS = AB
-    dpm[t, 1, 4] <- (1-pA[t]) * (1-pB[t])  #--|OS = U
-    dpm[t, 2, 4] <- pA[t] * (1-pB[t])      #--|OS = A
-    dpm[t, 3, 4] <- (1-pA[t]) * pB[t]      #--|OS = B
-    dpm[t, 4, 4] <- pA[t] * pB[t]          #--|OS = AB
+    dpm[ 1, 4] <- (1-pA) * (1-pB)  #--|OS = U
+    dpm[ 2, 4] <- pA * (1-pB)      #--|OS = A
+    dpm[ 3, 4] <- (1-pA) * pB      #--|OS = B
+    dpm[ 4, 4] <- pA * pB          #--|OS = AB
     
     ## logit links for detection probs
-    logit(pA[t]) <- alphaA0 
-    logit(pB[t]) <- alphaB0 
-    } #close time loop
+    logit(pA) <- alphaA0 
+    logit(pB) <- alphaB0 
+    
     
     ## Derived parameters
     
@@ -437,16 +439,16 @@ params <- c("gamA","gamB","gamAB","gamBA","epsA","epsB","epsAB","epsBA","psi",
             "beta0_EpsA", "beta0_EpsAB", "beta0_EpsB", "beta0_EpsBA" )
 
 # MCMC settings
-ni <- 1000   ;   nt <- 1   ;   nb <- 0 ;   nc <- 4    ;   na <- 500
+ni <- 5000   ;   nt <- 10   ;   nb <- 0 ;   nc <- 4    ;   na <- 2500
 
 # run model in jags
 setwd("../")
 
-va_mustela_rodent_hab_2_ni1k <- jags(data, inits=inits, params, "mod_seas_det_4stpm.txt", n.chains = nc,
-                              n.thin = nt, n.iter = ni, n.burnin = nb, n.adapt=na, parallel = T)
+va_mustela_rodent_hab_ni5k <- jags(data, inits=inits, params, "mod_seas_det_4stpm.txt", n.chains = nc,
+                                   n.thin = nt, n.iter = ni, n.burnin = nb, n.adapt=na, parallel = T)
 
 # Save model
 setwd("./model_output")
-save(va_mustela_rodent_hab_2_ni1k, file="va_mustela_rodent_hab_2_ni1k.rda")
+save(va_mustela_rodent_hab_ni5k, file="va_mustela_rodent_hab_ni5k.rda")
 
 #~ End of script

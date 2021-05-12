@@ -16,12 +16,64 @@ dat$date <- as.Date(dat$datetime)
 # plot temperatures at some sites
 sitenames <- sort(unique(dat$site))
 
-par(mfrow=c(4,4))
+par(mfrow=c(4,3))
 
-for(i in 51:66){
+for(i in 1:11){
   site1 <- filter(dat, site==sitenames[i])
   plot(site1$temp ~ site1$date, main=sitenames[i])
-  abline(h=0)
+  abline(h=0, col="red")
+}
+
+par(mfrow=c(4,3))
+
+for(i in 12:22){
+  site1 <- filter(dat, site==sitenames[i])
+  plot(site1$temp ~ site1$date, main=sitenames[i])
+  abline(h=0, col="red")
+}
+
+par(mfrow=c(4,3))
+
+for(i in 23:33){
+  site1 <- filter(dat, site==sitenames[i])
+  plot(site1$temp ~ site1$date, main=sitenames[i])
+  abline(h=0, col="red")
+}
+
+
+par(mfrow=c(4,3))
+
+for(i in 34:44){
+  site1 <- filter(dat, site==sitenames[i])
+  plot(site1$temp ~ site1$date, main=sitenames[i])
+  abline(h=0, col="red")
+}
+
+
+par(mfrow=c(4,3))
+
+for(i in 45:56){
+  site1 <- filter(dat, site==sitenames[i])
+  plot(site1$temp ~ site1$date, main=sitenames[i])
+  abline(h=0, col="red")
+}
+
+for(i in 57:68){
+  site1 <- filter(dat, site==sitenames[i])
+  plot(site1$temp ~ site1$date, main=sitenames[i])
+  abline(h=0, col="red")
+}
+
+for(i in 69:80){
+  site1 <- filter(dat, site==sitenames[i])
+  plot(site1$temp ~ site1$date, main=sitenames[i])
+  abline(h=0, col="red")
+}
+
+for(i in 81:92){
+  site1 <- filter(dat, site==sitenames[i])
+  plot(site1$temp ~ site1$date, main=sitenames[i])
+  abline(h=0, col="red")
 }
 
 # add julian date
@@ -77,31 +129,36 @@ temp4 <- array(NA, dim=c(96, 263))
 for(i in 1:96){
 temp4[i,] <- temp_site3[[i]][,2]$x}
 
-temp4[temp4<1] <- 1
-temp4[temp4>1] <- 0
+temp4[temp4<1] <- 0   # snow
+temp4[temp4>1] <- 1   # no snow
 
 hist(temp4)
 
-par(mfrow=c(4,4))
+par(mfrow=c(4,3))
 
-for(i in 1:16){
-plot(temp4[i,])}
+for(i in 1:11){
+plot(temp4[i,], main = sitenames[i])}
 
-for(i in 17:32){
-  plot(temp4[i,])}
+for(i in 13:24){
+  plot(temp4[i,], main = sitenames[i])}
 
-for(i in 33:48){
-  plot(temp4[i,])}
+for(i in c(25:29,31:36)){
+  plot(temp4[i,], main = sitenames[i])}
 
-for(i in 49:64){
-  plot(temp4[i,])}
+for(i in c(37:41,43:48)){
+  plot(temp4[i,], main = sitenames[i])}
 
-for(i in 65:80){
-  plot(temp4[i,])}
+for(i in 49:60){
+  plot(temp4[i,], main = sitenames[i])}
 
-for(i in 80:95){
-  plot(temp4[i,])}
+for(i in 61:72){
+  plot(temp4[i,], main = sitenames[i])}
 
+for(i in 73:84){
+  plot(temp4[i,], main = sitenames[i])}
+
+for(i in 85:96){
+  plot(temp4[i,], main = sitenames[i])}
 # over all it looks like there is a seasonal rythm here, so this might be ok
 
 # fill in NA's with mean for the week

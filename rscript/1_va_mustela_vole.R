@@ -310,9 +310,9 @@ sink()
 ## import data
 setwd("./data") # set wd to where the data is stored
 
-load("occm_var.rda")    
+load("occm_var_vole.rda")    
 
-yb <-occm_va # change name of imported object to fit with the rest of the code
+yb <-occm_va_vole # change name of imported object to fit with the rest of the code
 
 dim(yb) # check that dimensions are ok
 
@@ -366,11 +366,11 @@ ni <- 10000   ;   nt <- 10   ;   nb <- 0 ;   nc <- 4    ;   na <- 5000
 # run model in jags
 setwd("../")
 
-va_mustela_rodent <- jags(data, inits=inits, params, "mod_seas_det_4stpm.txt", n.chains = nc,
+va_mustela_vole <- jags(data, inits=inits, params, "mod_seas_det_4stpm.txt", n.chains = nc,
                                                      n.thin = nt, n.iter = ni, n.burnin = nb, n.adapt=na, parallel = T)
 
 # Save model
 setwd("./model_output")
-save(va_mustela_rodent, file="va_mustela_rodent_ni10k.rda")
+save(va_mustela_vole, file="va_mustela_vole_ni10k.rda")
 
 #~ End of script

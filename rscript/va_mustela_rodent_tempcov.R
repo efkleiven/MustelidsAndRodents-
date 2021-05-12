@@ -16,7 +16,7 @@ setwd("~/UiT/GitProjects/MustelidsAndRodents-")
 
 #
 # Specify model in JAGS language
-sink("mod_seas_det_4stpm.txt")
+sink("mod_temp.txt")
 cat("
     model{
     
@@ -50,7 +50,7 @@ cat("
     #EpsAB ~ dunif(0,1)
     #EpsBA ~ dunif(0,1)
     
-    # interscept det prob
+    # interscept col/ext prob
     for(i in 1:2){
       beta1[i]  ~ dunif(0,1) 
       beta2[i]  ~ dunif(0,1)
@@ -164,88 +164,89 @@ cat("
     ####################################################
  
    for(j in 1:nsite){
+    for(t in 1:nseason){
    
     # blocks state (x) = U
     
     # U to ...
-    stpm[b, j, 1, 1, 1] <- 1          #--|U
-    stpm[b, j, 2, 1, 1] <- 0          #--|A
-    stpm[b, j, 3, 1, 1] <- 0          #--|B
-    stpm[b, j, 4, 1, 1] <- 0          #--|AB
+    stpm[b, j, t, 1, 1, 1] <- 1          #--|U
+    stpm[b, j, t, 2, 1, 1] <- 0          #--|A
+    stpm[b, j, t, 3, 1, 1] <- 0          #--|B
+    stpm[b, j, t, 4, 1, 1] <- 0          #--|AB
     
     # A to ...
-    stpm[b, j, 1, 2, 1] <- 1          #--|U
-    stpm[b, j, 2, 2, 1] <- 0          #--|A
-    stpm[b, j, 3, 2, 1] <- 0          #--|B
-    stpm[b, j, 4, 2, 1] <- 0          #--|AB
+    stpm[b, j, t, 1, 2, 1] <- 1          #--|U
+    stpm[b, j, t, 2, 2, 1] <- 0          #--|A
+    stpm[b, j, t, 3, 2, 1] <- 0          #--|B
+    stpm[b, j, t, 4, 2, 1] <- 0          #--|AB
     
     # B to ...
-    stpm[b, j, 1, 3, 1] <- 1           #--|U
-    stpm[b, j, 2, 3, 1] <- 0           #--|A
-    stpm[b, j, 3, 3, 1] <- 0           #--|B
-    stpm[b, j, 4, 3, 1] <- 0           #--|AB
+    stpm[b, j, t, 1, 3, 1] <- 1           #--|U
+    stpm[b, j, t, 2, 3, 1] <- 0           #--|A
+    stpm[b, j, t, 3, 3, 1] <- 0           #--|B
+    stpm[b, j, t, 4, 3, 1] <- 0           #--|AB
     
     # AB to ..
-    stpm[b, j, 1, 4, 1] <- 1           #--|U
-    stpm[b, j, 2, 4, 1] <- 0           #--|A
-    stpm[b, j, 3, 4, 1] <- 0           #--|B
-    stpm[b, j, 4, 4, 1] <- 0           #--|AB
+    stpm[b, j, t, 1, 4, 1] <- 1           #--|U
+    stpm[b, j, t, 2, 4, 1] <- 0           #--|A
+    stpm[b, j, t, 3, 4, 1] <- 0           #--|B
+    stpm[b, j, t, 4, 4, 1] <- 0           #--|AB
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
  # blocks state (x) = A
   
 # U to ...
-    stpm[b, j, 1, 1, 2] <- (1-gamA[b, j])    #--|U
-    stpm[b, j, 2, 1, 2] <- gamA[b, j]        #--|A
-    stpm[b, j, 3, 1, 2] <- 0           #--|B
-    stpm[b, j, 4, 1, 2] <- 0           #--|AB
+    stpm[b, j, t, 1, 1, 2] <- (1-gamA[b, j, t])    #--|U
+    stpm[b, j, t, 2, 1, 2] <- gamA[b, j, t]        #--|A
+    stpm[b, j, t, 3, 1, 2] <- 0           #--|B
+    stpm[b, j, t, 4, 1, 2] <- 0           #--|AB
     
     # A to ...
-    stpm[b, j, 1, 2, 2] <- epsA[b, j]        #--|U
-    stpm[b, j, 2, 2, 2] <- (1-epsA[b, j])    #--|A
-    stpm[b, j, 3, 2, 2] <- 0           #--|B
-    stpm[b, j, 4, 2, 2] <- 0           #--|AB
+    stpm[b, j, t, 1, 2, 2] <- epsA[b, j, t]        #--|U
+    stpm[b, j, t, 2, 2, 2] <- (1-epsA[b, j, t])    #--|A
+    stpm[b, j, t, 3, 2, 2] <- 0           #--|B
+    stpm[b, j, t, 4, 2, 2] <- 0           #--|AB
     
     # B to ...
-    stpm[b, j, 1, 3, 2] <- (1-gamAB[b, j])   #--|U
-    stpm[b, j, 2, 3, 2] <- gamAB[b, j]       #--|A
-    stpm[b, j, 3, 3, 2] <- 0           #--|B
-    stpm[b, j, 4, 3, 2] <- 0           #--|AB
+    stpm[b, j, t, 1, 3, 2] <- (1-gamAB[b, j, t])   #--|U
+    stpm[b, j, t, 2, 3, 2] <- gamAB[b, j, t]       #--|A
+    stpm[b, j, t, 3, 3, 2] <- 0           #--|B
+    stpm[b, j, t, 4, 3, 2] <- 0           #--|AB
     
     # AB to ..
-    stpm[b, j, 1, 4, 2] <- epsAB[b, j]       #--|U
-    stpm[b, j, 2, 4, 2] <- (1-epsAB[b, j])   #--|A
-    stpm[b, j, 3, 4, 2] <- 0           #--|B
-    stpm[b, j, 4, 4, 2] <- 0           #--|AB
+    stpm[b, j, t, 1, 4, 2] <- epsAB[b, j, t]       #--|U
+    stpm[b, j, t, 2, 4, 2] <- (1-epsAB[b, j, t])   #--|A
+    stpm[b, j, t, 3, 4, 2] <- 0           #--|B
+    stpm[b, j, t, 4, 4, 2] <- 0           #--|AB
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
  # blocks state (x) = B
  
 # U to ...
-    stpm[b, j, 1, 1, 3] <-  (1-gamB[b, j])    #--|U
-    stpm[b, j, 2, 1, 3] <- 0            #--|A
-    stpm[b, j, 3, 1, 3] <-  gamB[b, j]        #--|B
-    stpm[b, j, 4, 1, 3] <- 0            #--|AB
+    stpm[b, j, t, 1, 1, 3] <-  (1-gamB[b, j, t])    #--|U
+    stpm[b, j, t, 2, 1, 3] <- 0            #--|A
+    stpm[b, j, t, 3, 1, 3] <-  gamB[b, j, t]        #--|B
+    stpm[b, j, t, 4, 1, 3] <- 0            #--|AB
     
     # A to ...
-    stpm[b, j, 1, 2, 3] <- (1-gamBA[b, j])    #--|U
-    stpm[b, j, 2, 2, 3] <- 0            #--|A
-    stpm[b, j, 3, 2, 3] <- gamBA[b, j]       #--|B
-    stpm[b, j, 4, 2, 3] <- 0            #--|AB
+    stpm[b, j, t, 1, 2, 3] <- (1-gamBA[b, j, t])    #--|U
+    stpm[b, j, t, 2, 2, 3] <- 0            #--|A
+    stpm[b, j, t, 3, 2, 3] <- gamBA[b, j, t]       #--|B
+    stpm[b, j, t, 4, 2, 3] <- 0            #--|AB
     
     # B to ...
-    stpm[b, j, 1, 3, 3] <-  epsB[b, j]        #--|U
-    stpm[b, j, 2, 3, 3] <- 0            #--|A
-    stpm[b, j, 3, 3, 3] <- (1-epsB[b, j])     #--|B
-    stpm[b, j, 4, 3, 3] <- 0            #--|AB
+    stpm[b, j, t, 1, 3, 3] <-  epsB[b, j, t]        #--|U
+    stpm[b, j, t, 2, 3, 3] <- 0            #--|A
+    stpm[b, j, t, 3, 3, 3] <- (1-epsB[b, j, t])     #--|B
+    stpm[b, j, t, 4, 3, 3] <- 0            #--|AB
     
     # AB to ..
-    stpm[b, j, 1, 4, 3] <-  epsBA[b, j]       #--|U
-    stpm[b, j, 2, 4, 3] <- 0            #--|A
-    stpm[b, j, 3, 4, 3] <-  (1-epsBA[b, j])   #--|B
-    stpm[b, j, 4, 4, 3] <- 0            #--|AB
+    stpm[b, j, t, 1, 4, 3] <-  epsBA[b, j, t]       #--|U
+    stpm[b, j, t, 2, 4, 3] <- 0            #--|A
+    stpm[b, j, t, 3, 4, 3] <-  (1-epsBA[b, j, t])   #--|B
+    stpm[b, j, t, 4, 4, 3] <- 0            #--|AB
 
  
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -253,41 +254,43 @@ cat("
  # blocks state (x) = AB
  
 # U to ...
-    stpm[b, j, 1, 1, 4] <- (1-gamA[b, j]) * (1-gamB[b, j])    #--|U
-    stpm[b, j, 2, 1, 4] <- gamA[b, j]  * (1-gamB[b, j])       #--|A
-    stpm[b, j, 3, 1, 4] <- (1-gamA[b, j]) * gamB[b, j]        #--|B
-    stpm[b, j, 4, 1, 4] <- gamA[b, j] * gamB[b, j]            #--|AB
+    stpm[b, j, t, 1, 1, 4] <- (1-gamA[b, j, t]) * (1-gamB[b, j, t])    #--|U
+    stpm[b, j, t, 2, 1, 4] <- gamA[b, j, t]  * (1-gamB[b, j, t])       #--|A
+    stpm[b, j, t, 3, 1, 4] <- (1-gamA[b, j, t]) * gamB[b, j, t]        #--|B
+    stpm[b, j, t, 4, 1, 4] <- gamA[b, j, t] * gamB[b, j, t]            #--|AB
     
     # A to ...
-    stpm[b, j, 1, 2, 4] <- epsA[b, j] * (1-gamBA[b, j])       #--|U
-    stpm[b, j, 2, 2, 4] <- (1-epsA[b, j]) * (1-gamBA[b, j])   #--|A
-    stpm[b, j, 3, 2, 4] <- epsA[b, j] * gamBA[b, j]           #--|B
-    stpm[b, j, 4, 2, 4] <- (1-epsA[b, j]) * gamBA[b, j]       #--|AB
+    stpm[b, j, t, 1, 2, 4] <- epsA[b, j, t] * (1-gamBA[b, j, t])       #--|U
+    stpm[b, j, t, 2, 2, 4] <- (1-epsA[b, j, t]) * (1-gamBA[b, j, t])   #--|A
+    stpm[b, j, t, 3, 2, 4] <- epsA[b, j, t] * gamBA[b, j, t]           #--|B
+    stpm[b, j, t, 4, 2, 4] <- (1-epsA[b, j, t]) * gamBA[b, j, t]       #--|AB
     
     # B to ...
-    stpm[b, j, 1, 3, 4] <- (1-gamAB[b, j] ) * epsB[b, j]      #--|U
-    stpm[b, j, 2, 3, 4] <- gamAB[b, j]  * epsB[b, j]          #--|A
-    stpm[b, j, 3, 3, 4] <- (1-gamAB[b, j] ) * (1-epsB[b, j])  #--|B
-    stpm[b, j, 4, 3, 4] <- gamAB[b, j]  * (1-epsB[b, j])      #--|AB
+    stpm[b, j, t, 1, 3, 4] <- (1-gamAB[b, j, t] ) * epsB[b, j, t]      #--|U
+    stpm[b, j, t, 2, 3, 4] <- gamAB[b, j, t]  * epsB[b, j, t]          #--|A
+    stpm[b, j, t, 3, 3, 4] <- (1-gamAB[b, j, t] ) * (1-epsB[b, j, t])  #--|B
+    stpm[b, j, t, 4, 3, 4] <- gamAB[b, j, t]  * (1-epsB[b, j, t])      #--|AB
     
     # AB to ..
-    stpm[b, j, 1, 4, 4] <- epsAB[b, j] * epsBA[b, j]          #--|U
-    stpm[b, j, 2, 4, 4] <- (1-epsAB[b, j]) * epsBA[b, j]      #--|A
-    stpm[b, j, 3, 4, 4] <- epsAB[b, j] * (1-epsBA[b, j])      #--|B
-    stpm[b, j, 4, 4, 4] <- (1-epsAB[b, j]) * (1-epsBA[b, j])  #--|AB
+    stpm[b, j, t, 1, 4, 4] <- epsAB[b, j, t] * epsBA[b, j, t]          #--|U
+    stpm[b, j, t, 2, 4, 4] <- (1-epsAB[b, j, t]) * epsBA[b, j, t]      #--|A
+    stpm[b, j, t, 3, 4, 4] <- epsAB[b, j, t] * (1-epsBA[b, j, t])      #--|B
+    stpm[b, j, t, 4, 4, 4] <- (1-epsAB[b, j, t]) * (1-epsBA[b, j, t])  #--|AB
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## Logit links for col and ext probabilities
 
-    logit(gamA[b, j])  <- beta0_gamA[hab[b, j]] 
-    logit(gamAB[b, j]) <- beta0_gamAB[hab[b, j]] 
-    logit(gamB[b, j])  <- beta0_gamB[hab[b, j]] 
-    logit(gamBA[b, j]) <- beta0_gamBA[hab[b, j]] 
+    logit(gamA[b, j, t])  <- beta0_gamA[temp[ind[b]+j, t]] 
+    logit(gamAB[b, j, t]) <- beta0_gamAB[temp[ind[b]+j, t]] 
+    logit(gamB[b, j, t])  <- beta0_gamB[temp[ind[b]+j, t]] 
+    logit(gamBA[b, j, t]) <- beta0_gamBA[temp[ind[b]+j, t]] 
  
-    logit(epsA[b, j])  <- beta0_epsA[hab[b, j]] 
-    logit(epsAB[b, j]) <- beta0_epsAB[hab[b, j]] 
-    logit(epsB[b, j])  <- beta0_epsB[hab[b, j]]
-    logit(epsBA[b, j]) <- beta0_epsBA[hab[b, j]] 
+    logit(epsA[b, j, t])  <- beta0_epsA[temp[ind[b]+j, t]] 
+    logit(epsAB[b, j, t]) <- beta0_epsAB[temp[ind[b]+j, t]] 
+    logit(epsB[b, j, t])  <- beta0_epsB[temp[ind[b]+j, t]]
+    logit(epsBA[b, j, t]) <- beta0_epsBA[temp[ind[b]+j, t]] 
+    
+    }# close time loop
    }# close site loop
    
     logit(GamA[b])  <- beta0_GamA 
@@ -310,13 +313,14 @@ cat("
 
       # latent site state for the rest of the seasons
       for(j in 1:nsite){
-        z[j, b, t+1] ~ dcat( stpm[b, j, ( 1:nout ) , z[ j, b, t], x[b,t+1]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
+        z[j, b, t+1] ~ dcat( stpm[b, j, t+1, ( 1:nout ) , z[ j, b, t], x[b,t+1]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
        
           for(day in 1:nsurvey) {      
-            y[j, b, t, day] ~ dcat( dpm[t, ( 1:nout ) , z[j, b, t]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
+            y[j, b, t, day] ~ dcat( dpm[ ( 1:nout ) , z[j, b, t]] + 0.01)  # +0.01 to avoide giving the dcat a prob of 0 
           } #end survey loop
         } # end site loop
       } # end block loop
+    } #close time loop
 
     
     #############################################################
@@ -324,34 +328,33 @@ cat("
     #############################################################
     
     # TS = U
-    dpm[t, 1, 1] <- 1                      #--|OS = U
-    dpm[t, 2, 1] <- 0                      #--|OS = A
-    dpm[t, 3, 1] <- 0                      #--|OS = B
-    dpm[t, 4, 1] <- 0                      #--|OS = AB
+    dpm[ 1, 1] <- 1                      #--|OS = U
+    dpm[ 2, 1] <- 0                      #--|OS = A
+    dpm[ 3, 1] <- 0                      #--|OS = B
+    dpm[ 4, 1] <- 0                      #--|OS = AB
     
     # TS = A
-    dpm[t, 1, 2] <- 1-pA[t]                #--|OS = U
-    dpm[t, 2, 2] <- pA[t]                  #--|OS = A
-    dpm[t, 3, 2] <- 0                      #--|OS = B
-    dpm[t, 4, 2] <- 0                      #--|OS = AB
+    dpm[ 1, 2] <- 1-pA                #--|OS = U
+    dpm[ 2, 2] <- pA                  #--|OS = A
+    dpm[ 3, 2] <- 0                      #--|OS = B
+    dpm[ 4, 2] <- 0                      #--|OS = AB
     
     # TS = B
-    dpm[t, 1, 3] <- 1-pB[t]                #--|OS = U
-    dpm[t, 2, 3] <- 0                      #--|OS = A
-    dpm[t, 3, 3] <- pB[t]                  #--|OS = B
-    dpm[t, 4, 3] <- 0                      #--|OS = AB
+    dpm[ 1, 3] <- 1-pB                #--|OS = U
+    dpm[ 2, 3] <- 0                      #--|OS = A
+    dpm[ 3, 3] <- pB                  #--|OS = B
+    dpm[ 4, 3] <- 0                      #--|OS = AB
     
     # TS = AB
-    dpm[t, 1, 4] <- (1-pA[t]) * (1-pB[t])  #--|OS = U
-    dpm[t, 2, 4] <- pA[t] * (1-pB[t])      #--|OS = A
-    dpm[t, 3, 4] <- (1-pA[t]) * pB[t]      #--|OS = B
-    dpm[t, 4, 4] <- pA[t] * pB[t]          #--|OS = AB
+    dpm[ 1, 4] <- (1-pA) * (1-pB)  #--|OS = U
+    dpm[ 2, 4] <- pA * (1-pB)      #--|OS = A
+    dpm[ 3, 4] <- (1-pA) * pB      #--|OS = B
+    dpm[ 4, 4] <- pA * pB          #--|OS = AB
     
     ## logit links for detection probs
-    logit(pA[t]) <- alphaA0 
-    logit(pB[t]) <- alphaB0 
-    } #close time loop
-    
+    logit(pA) <- alphaA0 
+    logit(pB) <- alphaB0 
+
     ## Derived parameters
     
     #diff_gamA <- gamA - gamAB
@@ -382,17 +385,25 @@ sink()
 setwd("./data") # set wd to where the data is stored
 
 load("occm_var.rda")    
-#load("case_study_data.RData")
+
 yb <-occm_va # change name of imported object to fit with the rest of the code
 
 dim(yb) # check that dimensions are ok
 
 ## import hab cov
-load("hab.rda")
+load("temp.rda")
+
+temp <- temp5
+temp[temp==1]<-2
+temp[temp==0]<-1
+
+# make indexin variable
+ind <- c(0,12,12*2,12*3, 12*4, 12*5, 12*6, 12*7)
+ind
 
 # give data
 data <-list(nseason = dim(yb)[3], nblock = dim(yb)[2], nsite = dim(yb)[1], nsurvey = dim(yb)[4], 
-            nout=4, y = yb, hab=hab)
+            nout=4, y = yb, temp=temp, ind=ind)
 
 # naming some parameters for loops further down in this script
 nseason = dim(yb)[3]; nblock = dim(yb)[2]; nsite = dim(yb)[1]; nsurvey = dim(yb)[4]
@@ -442,11 +453,11 @@ ni <- 1000   ;   nt <- 1   ;   nb <- 0 ;   nc <- 4    ;   na <- 500
 # run model in jags
 setwd("../")
 
-va_mustela_rodent_hab_2_ni1k <- jags(data, inits=inits, params, "mod_seas_det_4stpm.txt", n.chains = nc,
+va_mustela_rodent_temp_ni1k <- jags(data, inits=inits, params, "mod_temp.txt", n.chains = nc,
                               n.thin = nt, n.iter = ni, n.burnin = nb, n.adapt=na, parallel = T)
 
 # Save model
 setwd("./model_output")
-save(va_mustela_rodent_hab_2_ni1k, file="va_mustela_rodent_hab_2_ni1k.rda")
+save(va_mustela_rodent_temp_ni1k, file="va_mustela_rodent_temp_ni1k.rda")
 
 #~ End of script

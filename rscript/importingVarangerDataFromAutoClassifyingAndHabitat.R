@@ -4,8 +4,8 @@ library(dplyr)
 library(tidyr)
 
 # set working directory
-wd <- "C:/Eivind/GitProjects/MustelidsAndRodents-"
-setwd(wd)
+#wd <- "C:/Eivind/GitProjects/MustelidsAndRodents-"
+#setwd(wd)
 
 # look at files in the directory
 dir() 
@@ -74,29 +74,45 @@ str(df2) # check that its ok
 # select images classified with more than 90% certainty
 df2$answer <- ifelse(df2$confidence1>0.90,df2$guess1,0)
 
-df2 <- df2[,-c(1:2,4:8,10:13)] # remove unuseful columns
-str(df2)# check that the df is fine
-
+# set answer to NA if quality is bad
 table(df2$answer)
 
+df2$answer[df2$answer==0] <- NA
+na_vec <- is.na(df2$answer)
+
+summary(df2) # check number of NA's
+
+#remove rows with NA's
+df3 <- df2[!na_vec,]
+
+# check that correct number of rows was removed
+nrow(df2)-nrow(df3)
+
+# remove unuseful columns
+df3 <- df3[,-c(1:2,4:8,10:13)]
+
+# check that the df is fine
+str(df3)
+table(df3$answer)
+
 # add column for vole, lemming, stoat and least weasel
-df2$vole <- ifelse(df2$answer==3,1,0)
-table(df2$vole)
+df3$vole <- ifelse(df3$answer==3,1,0)
+table(df3$vole)
 
-df2$lemming <- ifelse(df2$answer==5,1,0)
-table(df2$lemming)
+df3$lemming <- ifelse(df3$answer==5,1,0)
+table(df3$lemming)
 
-df2$stoat <- ifelse(df2$answer==7,1,0)
-table(df2$stoat)
+df3$stoat <- ifelse(df3$answer==7,1,0)
+table(df3$stoat)
 
-df2$least_weasel <- ifelse(df2$answer==4,1,0)
-table(df2$least_weasel)
+df3$least_weasel <- ifelse(df3$answer==4,1,0)
+table(df3$least_weasel)
 
-df2$mustela <- df2$stoat+df2$least_weasel
+df3$mustela <- df3$stoat+df3$least_weasel
 
 #############################################################
 # import metadata (which will provide info on the habitat of each site)
-setwd("H:/UiT/CameraTrapsForSmallMammals/Data")
+setwd("~/UiT/CameraTrapsForSmallMammals/Data")
 metadata <- read.csv("Small mammal camera trap metadata locations.csv", header=T, sep=";")
 
 # check that it looks fine
@@ -107,15 +123,15 @@ names(metadata)[3]<-"site" # change name of site column to be identical to df2
 metadata <- select(metadata, c("site","habitat"))
 
 # add habitat column to the dataset
-dat <- left_join(df2, metadata, by="site") # add on info from metadata
+dat <- left_join(df3, metadata, by="site") # add on info from metadata
 
 #check that it went fine
 str(dat)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-setwd("C:/Eivind/GitProjects/MustelidsAndRodents-/data")
+setwd("~/UiT/GitProjects/MustelidsAndRodents-/data")
 # export data frame for metadata
- write.csv(dat, "varanger_camera_answer.csv")
+ write.csv(dat, "varanger_camera_answer_rmNA.csv")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # sum animals per day
@@ -154,114 +170,12 @@ least_weasel_occ <- aggregate(least_weasel~date, data=least_weasel_site,mean)
 mustela_site <- aggregate(mustela~date+site, data=dat,max)
 mustela_occ <- aggregate(mustela~date, data=mustela_site,mean)
 
-plot(vole~date, data=vole_occ, type="l", col="blue")
-lines(lemming~date, data=lemming_occ, col="red")
-lines(stoat~date, data=stoat_occ, col="green")
-lines(least_weasel~date, data=least_weasel_occ, col="orange")
+plot(vole_occ$vole , type="l", col="blue")
+lines(lemming_occ$lemming, col="red")
+lines(stoat_occ$stoat, col="green")
+lines(least_weasel_occ$least_weasel, col="orange")
 #legend("topleft",legend=c("vole","lemming","stoat","least weasel"),lty=1, lwd=2,
 #       col=c("blue","red","green","orange"), cex=0.5)
-
-######################################################################################
-###    make weekly occupancy    #####################
-######################################################
-
-#vole_site2 <- aggregate(vole~yearweek+site, data=dat, max)         # max aninals per week
-#vole_occ2 <- aggregate(vole~yearweek, data=vole_site2, mean)       # mean animals over site within a week
-#vole_occ2$date <- as.Date(paste(vole_occ2$yearweek,1),"%Y-%U %u")
-
-#stoat_site2 <- aggregate(stoat~yearweek+site, data=dat,max)
-#stoat_occ2 <- aggregate(stoat~yearweek, data=stoat_site2,mean)
-#stoat_occ2$date <- as.Date(paste(stoat_occ2$yearweek,1),"%Y-%U %u")
-
-#lemming_site2 <- aggregate(lemming~yearweek+site, data=dat,max)
-#lemming_occ2 <- aggregate(lemming~yearweek, data=lemming_site2,mean)
-#lemming_occ2$date <- as.Date(paste(lemming_occ2$yearweek,1),"%Y-%U %u")
-
-#least_weasel_site2 <- aggregate(least_weasel~yearweek+site, data=dat,max)
-#least_weasel_occ2 <- aggregate(least_weasel~yearweek, data=least_weasel_site2,mean)
-#least_weasel_occ2$date <- as.Date(paste(least_weasel_occ2$yearweek,1),"%Y-%U %u")
-
-#plotvole <- na.omit(vole_occ2)
-#plotvole$date <- c(1:length(plotvole$date))
-
-#plotlem <- na.omit(lemming_occ2)
-#plotlem$date <- c(1:length(plotlem$date))
-
-#plotstoat <- na.omit(stoat_occ2)
-#plotstoat$date <- c(1:length(plotstoat$date))
-
-#plotweasel <- na.omit(least_weasel_occ2)
-#plotweasel$date <- c(1:length(plotweasel$date))
-
-#plot(vole ~ date, data=plotvole, type="l", col="blue", xlim=c(0,260), ylim=c(0,1), xlab="", ylab="", lwd=3)
-#lines(lemming ~ date, data=plotlem, col="red", lwd=3)
-#lines(stoat ~ date, data=plotstoat, col="green", lwd=3)
-#lines(least_weasel ~ date, data=plotweasel, col="orange", lwd=3)
-#legend("topleft",legend=c("vole","lemming","stoat","least weasel"),lty=1, lwd=2,
-#       col=c("blue","red","green","orange"), cex=0.5)
-
-###############################################################################
-# make figure with number of sites each species was observed in a given week #
-##############################################################################
-# sum animals over site within a week
-#vole_occ3 <- aggregate(vole~yearweek, data=vole_site2, sum)       
-
-#lemming_occ3 <- aggregate(lemming~yearweek, data=lemming_site2, sum)       
-
-#stoat_occ3 <- aggregate(stoat~yearweek, data=stoat_site2,sum)
-
-#least_weasel_occ3 <- aggregate(least_weasel~yearweek, data=least_weasel_site2,sum)
-
-# add a column for the family mustela (stoat and least weasel)
-#stoat_site2$mustela <- stoat_site2$stoat+least_weasel_site2$least_weasel
-#stoat_site2$mustela[stoat_site2$mustela==2]<-1
-
-#mustela_occ3 <- aggregate(mustela~yearweek, data=stoat_site2,sum)
-
-#stoat_site2$rodent <- vole_site2$vole+lemming_site2$lemming
-#stoat_site2$rodent[stoat_site2$rodent==2]<-1
-
-#rodent_occ3 <- aggregate(rodent~yearweek, data=stoat_site2,sum)
-
-
-
-# remove NA's (some NA apeared around new year from the week formulation)
-# and change time to julian week
-#plotvole <- na.omit(vole_occ3)
-#plotvole$date <- c(1:nrow(plotvole))
-
-#plotlemming <- na.omit(lemming_occ3)
-#plotlemming$date <- c(1:nrow(plotlemming))
-
-#plotrodent <- na.omit(rodent_occ3)
-#plotrodent$date <- c(1:nrow(plotrodent))
-
-#plotstoat <- na.omit(stoat_occ3)
-#plotstoat$date <- c(1:nrow(plotstoat))
-
-#plotmustela <- na.omit(mustela_occ3)
-#plotmustela$date <- c(1:nrow(plotstoat))
-
-#plotleast_weasel <- na.omit(least_weasel_occ3)
-#plotleast_weasel$date <- c(1:nrow(plotleast_weasel))
-
-
-# make plot
-#plot(NULL, type="n", col="blue", xlim=c(1,260), ylim=c(0,70),
-#     xlab="week", ylab="ncam", main="Occ trend Varanger", axes=F)
-#axis(side=1, c(1:260), c(1:260))
-#axis(side=2, c(0:60))
-#lines(vole ~ date, data=plotvole, col="blue")
-#lines(stoat ~ date, data=plotstoat, col="green")
-#lines(least_weasel ~ date, data=plotleast_weasel, col="red")
-#lines(mustela ~ date, data=plotmustela, col="black")
-#lines(lemming ~ date, data=plotlemming, col="darkgray")
-#lines(rodent ~ date, data=plotrodent, col="brown")
-
-#legend("topleft",legend=c("vole","stoat"),lty=1, lwd=2,
-#       col=c("blue","green"), cex=0.5)
-
-# 160(after cameras in VJ was deployed) to 206 looks promissing
 
 ##############################################
 # make occupancy tables for vole and stoat   #
@@ -314,6 +228,9 @@ dim(occ_rodent)
 ## Make multi state occupancy tables with block structure ###
 #############################################################
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# For rodents and mustelids
+
 # set the mustelids to 2
 occ_mustela2[occ_mustela2==1] <- 2
 
@@ -356,7 +273,104 @@ summary(occm_va)
 
 # save 
 setwd("C:/Eivind/GitProjects/MustelidsAndRodents-/data")
-save(occm_va, file="occm_var.rda")
+save(occm_va, file="occm_va_rmNA.rda")
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# For voles and mustelids
+
+# set the mustelids to 2
+occ_mustela2[occ_mustela2==1] <- 2
+
+# making a multi state array for mustelids and rodents
+occ_va_vole <- occ_mustela2+occ_vole2 
+table(occ_va_vole)
+
+# changing states from 0,1,2,3 to 1,2,3,4 (needed for the categorical dist in Jags)
+occ_va_vole[occ_va_vole==3]<-4
+occ_va_vole[occ_va_vole==2]<-3
+occ_va_vole[occ_va_vole==1]<-2
+occ_va_vole[occ_va_vole==0]<-1
+
+# add block dim
+nblocks <- 8
+
+# making empty array to fill in the multi state occupancy matrix
+# a problem here is that the sites in Komag have only 11 sites per block, 
+# while the sites in VJ have 12 sites per block. Now I create empty sites in komag, which dosen't make sence.
+# probably this will also cause problems when we want to include covariates. 
+
+occm_va_vole <- array(NA, dim=c(12,nblocks,nprocc,ndays))
+
+occ_va_vole <- aperm(occ_va_vole, c(3,2,1))
+
+occm_va_vole[1:11,1,,] <- occ_va_vole[1:11,,] 
+occm_va_vole[1:11,2,,] <- occ_va_vole[12:22,,] 
+occm_va_vole[1:11,3,,] <- occ_va_vole[23:33,,] 
+occm_va_vole[1:11,4,,] <- occ_va_vole[34:44,,]
+occm_va_vole[,5,,] <- occ_va_vole[45:56,,] 
+occm_va_vole[,6,,] <- occ_va_vole[57:68,,] 
+occm_va_vole[,7,,] <- occ_va_vole[69:80,,] 
+occm_va_vole[,8,,] <- occ_va_vole[81:92,,] 
+
+table(occm_va_vole)
+dim(occm_va_vole)
+
+# check number of NA's
+summary(occm_va_vole) 
+
+# save 
+#setwd("C:/Eivind/GitProjects/MustelidsAndRodents-/data")
+setwd("~/UiT/GitProjects/MustelidsAndRodents-/data")
+save(occm_va_vole, file="occm_va_vole_rmNA.rda")
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# For lemmings and mustelids
+
+# set the mustelids to 2
+occ_mustela2[occ_mustela2==1] <- 2
+
+# making a multi state array for mustelids and rodents
+occ_va_lem <- occ_mustela2+occ_lemming2 
+table(occ_va_lem)
+
+# changing states from 0,1,2,3 to 1,2,3,4 (needed for the categorical dist in Jags)
+occ_va_lem[occ_va_lem==3]<-4
+occ_va_lem[occ_va_lem==2]<-3
+occ_va_lem[occ_va_lem==1]<-2
+occ_va_lem[occ_va_lem==0]<-1
+
+# add block dim
+nblocks <- 8
+
+# making empty array to fill in the multi state occupancy matrix
+# a problem here is that the sites in Komag have only 11 sites per block, 
+# while the sites in VJ have 12 sites per block. Now I create empty sites in komag, which dosen't make sence.
+# probably this will also cause problems when we want to include covariates. 
+
+occm_va_lem <- array(NA, dim=c(12,nblocks,nprocc,ndays))
+
+occ_va_lem <- aperm(occ_va_lem, c(3,2,1))
+
+occm_va_lem[1:11,1,,] <- occ_va_lem[1:11,,] 
+occm_va_lem[1:11,2,,] <- occ_va_lem[12:22,,] 
+occm_va_lem[1:11,3,,] <- occ_va_lem[23:33,,] 
+occm_va_lem[1:11,4,,] <- occ_va_lem[34:44,,]
+occm_va_lem[,5,,] <- occ_va_lem[45:56,,] 
+occm_va_lem[,6,,] <- occ_va_lem[57:68,,] 
+occm_va_lem[,7,,] <- occ_va_lem[69:80,,] 
+occm_va_lem[,8,,] <- occ_va_lem[81:92,,] 
+
+table(occm_va_lem)
+dim(occm_va_lem)
+
+# check number of NA's
+summary(occm_va_lem) 
+
+# save 
+#setwd("C:/Eivind/GitProjects/MustelidsAndRodents-/data")
+setwd("~/UiT/GitProjects/MustelidsAndRodents-/data")
+save(occm_va_lem, file="occm_var_lem_rmNA.rda")
 
 ###########################
 # make habitat covariate ##
@@ -393,7 +407,19 @@ for(b in 1:8){
     hab[b,i] <- dat$habitat[dat$site==site_2[b,i]][1]
   }}
 
+# fill in manually the habitat of that last site in each block in komag (block 1-4)
+# these sites was not established before 2020, hence they are not included in the dataset
+# however, a covariate from here is still need.
+
+hab[1,12] <- 2
+hab[2,12] <- 2
+hab[3,12] <- 1
+hab[4,12] <- 1
+
+hab
+
 # save habitate covariate
+setwd("~/UiT/GitProjects/MustelidsAndRodents-/data")
 save(hab, file="hab.rda")
 
 #~ End of script
