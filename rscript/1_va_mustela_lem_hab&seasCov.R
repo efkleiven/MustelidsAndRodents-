@@ -365,7 +365,7 @@ setwd("./data") # set wd to where the data is stored
 
 load("occm_var_lem_rmNA.rda")    
 #load("case_study_data.RData")
-yb <-occm_va_lem[,,160:163,] # change name of imported object to fit with the rest of the code
+yb <-occm_va_lem # change name of imported object to fit with the rest of the code
 
 dim(yb) # check that dimensions are ok
 
@@ -376,8 +376,8 @@ load("hab.rda")
 load("season_cov.rda")
 load("season_cov_block.rda")
 
-seas <- season_cov[,,160:163]
-seas_block <- season_cov_block[,160:163]
+seas <- season_cov
+seas_block <- season_cov_block
 
 #
 seas[seas==1]<-0
