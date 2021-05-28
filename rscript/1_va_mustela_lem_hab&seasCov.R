@@ -30,66 +30,36 @@ cat("
     ##  Priors  ##    
     ##############
 
-    
-    # interscept det prob
     for(i in 1:2){
-      beta1[i]  ~ dunif(0,1) 
-      beta2[i]  ~ dunif(0,1)
-      beta3[i]  ~ dunif(0,1) 
-      beta4[i]  ~ dunif(0,1)
-      beta5[i]  ~ dunif(0,1) 
-      beta6[i]  ~ dunif(0,1)
-      beta7[i]  ~ dunif(0,1) 
-      beta8[i]  ~ dunif(0,1)
-
-      beta0_gamA[i]  <- logit(beta1[i])
-      beta0_gamAB[i] <- logit(beta2[i])
-      beta0_gamB[i]  <- logit(beta3[i])
-      beta0_gamBA[i] <- logit(beta4[i])
+      beta0_gamA[i]  ~ dnorm(0,1)
+      beta0_gamAB[i] ~ dnorm(0,1)
+      beta0_gamB[i]  ~ dnorm(0,1)
+      beta0_gamBA[i] ~ dnorm(0,1)
     
-      beta0_epsA[i]  <- logit(beta5[i])
-      beta0_epsAB[i] <- logit(beta6[i])
-      beta0_epsB[i]  <- logit(beta7[i])
-      beta0_epsBA[i] <- logit(beta8[i])
+      beta0_epsA[i]  ~ dnorm(0,1)
+      beta0_epsAB[i] ~ dnorm(0,1)
+      beta0_epsB[i]  ~ dnorm(0,1)
+      beta0_epsBA[i] ~ dnorm(0,1)
       
-      
-      beta17[i]  ~ dunif(0,1) 
-      beta18[i]  ~ dunif(0,1)
-      beta19[i]  ~ dunif(0,1) 
-      beta20[i]  ~ dunif(0,1)
-      beta21[i]  ~ dunif(0,1) 
-      beta22[i]  ~ dunif(0,1)
-      beta23[i]  ~ dunif(0,1) 
-      beta24[i]  ~ dunif(0,1)
-      
-      beta1_gamA[i]  <- logit(beta17[i])
-      beta1_gamAB[i] <- logit(beta18[i])
-      beta1_gamB[i]  <- logit(beta19[i])
-      beta1_gamBA[i] <- logit(beta20[i])
+      beta1_gamA[i]  ~ dnorm(0,1)
+      beta1_gamAB[i] ~ dnorm(0,1)
+      beta1_gamB[i]  ~ dnorm(0,1)
+      beta1_gamBA[i] ~ dnorm(0,1)
     
-      beta1_epsA[i]  <- logit(beta21[i])
-      beta1_epsAB[i] <- logit(beta22[i])
-      beta1_epsB[i]  <- logit(beta23[i])
-      beta1_epsBA[i] <- logit(beta24[i])
+      beta1_epsA[i]  ~ dnorm(0,1)
+      beta1_epsAB[i] ~ dnorm(0,1)
+      beta1_epsB[i]  ~ dnorm(0,1)
+      beta1_epsBA[i] ~ dnorm(0,1)
       
-      beta9[i]  ~ dunif(0,1) 
-      beta10[i] ~ dunif(0,1)
-      beta11[i] ~ dunif(0,1) 
-      beta12[i] ~ dunif(0,1)
-      beta13[i] ~ dunif(0,1) 
-      beta14[i] ~ dunif(0,1)
-      beta15[i] ~ dunif(0,1) 
-      beta16[i] ~ dunif(0,1)
-      
-      beta0_GamA[i]  <- logit(beta9[i])
-      beta0_GamAB[i] <- logit(beta10[i])
-      beta0_GamB[i]  <- logit(beta11[i])
-      beta0_GamBA[i] <- logit(beta12[i])
+      beta0_GamA[i]  ~ dnorm(0,1)
+      beta0_GamAB[i] ~ dnorm(0,1)
+      beta0_GamB[i]  ~ dnorm(0,1)
+      beta0_GamBA[i] ~ dnorm(0,1)
     
-      beta0_EpsA[i]  <- logit(beta13[i])
-      beta0_EpsAB[i] <- logit(beta14[i])
-      beta0_EpsB[i]  <- logit(beta15[i])
-      beta0_EpsBA[i] <- logit(beta16[i])
+      beta0_EpsA[i]  ~ dnorm(0,1)
+      beta0_EpsAB[i] ~ dnorm(0,1)
+      beta0_EpsB[i]  ~ dnorm(0,1)
+      beta0_EpsBA[i] ~ dnorm(0,1)
     } # end loop
     
     # prior for the seasonal covariat on block level  
@@ -104,11 +74,9 @@ cat("
     }  
       
     # interscept det prob
-    alpha1 ~ dunif(0,1) 
-    alpha2 ~ dunif(0,1)
-    
-    alphaA0 <- logit(alpha1)
-    alphaB0 <- logit(alpha2)
+
+    alphaA0 ~ dnorm(0,1)
+    alphaB0 ~ dnorm(0,1)
     
   # initial state parameters
     for(b in 1:nblock){
@@ -397,7 +365,7 @@ setwd("./data") # set wd to where the data is stored
 
 load("occm_var_lem_rmNA.rda")    
 #load("case_study_data.RData")
-yb <-occm_va_lem # change name of imported object to fit with the rest of the code
+yb <-occm_va_lem[,,160:163,] # change name of imported object to fit with the rest of the code
 
 dim(yb) # check that dimensions are ok
 
@@ -408,8 +376,8 @@ load("hab.rda")
 load("season_cov.rda")
 load("season_cov_block.rda")
 
-seas <- season_cov
-seas_block <- season_cov_block
+seas <- season_cov[,,160:163]
+seas_block <- season_cov_block[,160:163]
 
 #
 seas[seas==1]<-0
@@ -451,13 +419,13 @@ for(j in 1:nsite){
 
 # give initial values
 inits=function(){list( 
-  z = sp_inits, alpha1=runif(1), alpha2=runif(1),
-  beta1=runif(2,0.1,0.9), beta2=runif(2,0.1,0.9), beta3=runif(2,0.1,0.9), beta4=runif(2,0.1,0.9),
-  beta5=runif(2,0.1,0.9), beta6=runif(2,0.1,0.9), beta7=runif(2,0.1,0.9), beta8=runif(2,0.1,0.9), 
-  beta9=runif(2,0.1,0.9), beta10=runif(2,0.1,0.9), beta11=runif(2,0.1,0.9), beta12=runif(2,0.1,0.9),
-  beta13=runif(2,0.1,0.9), beta14=runif(2,0.1,0.9), beta15=runif(2,0.1,0.9), beta16=runif(2,0.1,0.9),
-  beta17=runif(2,0.1,0.9), beta18=runif(2,0.1,0.9), beta19=runif(2,0.1,0.9), beta20=runif(2,0.1,0.9),
-  beta21=runif(2,0.1,0.9), beta22=runif(2,0.1,0.9), beta23=runif(2,0.1,0.9), beta24=runif(2,0.1,0.9) 
+  z = sp_inits, alphaA0=runif(1), alphaB0=runif(1),
+  beta0_gamA=runif(2,0.1,0.9), beta0_gamB=runif(2,0.1,0.9), beta0_gamAB=runif(2,0.1,0.9), beta0_gamBA=runif(2,0.1,0.9),
+  beta0_epsA=runif(2,0.1,0.9), beta0_epsB=runif(2,0.1,0.9), beta0_epsAB=runif(2,0.1,0.9), beta0_epsBA=runif(2,0.1,0.9), 
+  beta1_gamA=runif(2,0.1,0.9), beta1_gamB=runif(2,0.1,0.9), beta1_gamAB=runif(2,0.1,0.9), beta1_gamBA=runif(2,0.1,0.9),
+  beta1_epsA=runif(2,0.1,0.9), beta1_epsB=runif(2,0.1,0.9), beta1_epsAB=runif(2,0.1,0.9), beta1_epsBA=runif(2,0.1,0.9),
+  beta0_GamA=runif(2,0.1,0.9), beta0_GamB=runif(2,0.1,0.9), beta0_GamAB=runif(2,0.1,0.9), beta0_GamBA=runif(2,0.1,0.9),
+  beta0_EpsA=runif(2,0.1,0.9), beta0_EpsB=runif(2,0.1,0.9), beta0_EpsAB=runif(2,0.1,0.9), beta0_EpsBA=runif(2,0.1,0.9) 
 )}
 
 # Parameters monitored
@@ -472,7 +440,7 @@ params <- c("gamA","gamB","gamAB","gamBA","epsA","epsB","epsAB","epsBA","psi",
             "beta0_EpsA", "beta0_EpsAB", "beta0_EpsB", "beta0_EpsBA" )
 
 # MCMC settings
-ni <- 10   ;   nt <- 1   ;   nb <- 0 ;   nc <- 1    ;   na <- 0
+ni <- 5000   ;   nt <- 5   ;   nb <- 0 ;   nc <- 4    ;   na <- 1000
 
 # run model in jags
 setwd("../")
